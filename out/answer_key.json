@@ -1,0 +1,160 @@
+{
+ "_about": "Hand-built answer key for grouping tests. Built from metadata + figure check on 2026-11-20. IDs only; no article text.",
+ "events": [
+  {
+   "event_id": "E1_us_ppi_oct",
+   "event_type": "macro_data_release",
+   "event_date": "2026-11-13",
+   "period": "October 2026",
+   "independent": [
+    "ACTI-10010414-01M7AP8WCVYF7JHMQF5AF5PSKQ",
+    "INVZ-10009737-01M7AMS30JH9CG20KPB7WFHP1P"
+   ],
+   "translations_of": {
+    "INVZ-10009737-01M7AMS30JH9CG20KPB7WFHP1P": [
+     "INVZ-10010403-01M7AP91R04FNA1Y3JBZWX2EVN",
+     "INVZ-10010408-01M7AP8YTKFS6J0E74GTFXKS4Z"
+    ]
+   },
+   "expected_figures": [
+    {
+     "what": "headline PPI",
+     "value": 0.3,
+     "unit": "percent",
+     "basis": "month_over_month",
+     "measure": "actual",
+     "agree": true
+    },
+    {
+     "what": "headline PPI consensus",
+     "value": 0.4,
+     "unit": "percent",
+     "basis": "month_over_month",
+     "measure": "estimate",
+     "agree": true
+    },
+    {
+     "what": "headline PPI annual",
+     "value": 6.5,
+     "unit": "percent",
+     "basis": "year_over_year",
+     "measure": "actual",
+     "agree": true
+    }
+   ],
+   "trap": "'Core' differs by definition: ActionForex quotes ex food, energy AND trade services (0.5% m/m); Invezz quotes ex food and energy (0.3%). Not a disagreement - different measures. Must neither be flagged as conflict nor merged into one number.",
+   "validator_note": "Invezz states m/m as 'during the month' - lexicon must accept it."
+  },
+  {
+   "event_id": "E2_intel_lawsuit",
+   "event_type": "company_news",
+   "event_date": "2026-11-16",
+   "independent": [
+    "INVZ-10009737-01M7HXNFGVTSR4PFBV3VDMT1PA",
+    "IBTU-10010345-01M7JNQ6RA505ZSJND1Q5P6DB9"
+   ],
+   "translations_of": {},
+   "expected_figures": [
+    {
+     "what": "August share offering",
+     "value": 23,
+     "unit": "currency_amount",
+     "currency": "USD",
+     "scale": "billion",
+     "agree": true
+    },
+    {
+     "what": "offering price",
+     "value": 95,
+     "unit": "currency_amount",
+     "currency": "USD",
+     "agree": true
+    },
+    {
+     "what": "share price drop on 30 Oct",
+     "value": "29% (headline) vs 28.6% (Invezz body)",
+     "agree": true,
+     "note": "rounding, not a disagreement; narrate the precise 28.6% or say 'about 29%'"
+    }
+   ],
+   "trap": "No DE/NL edition exists for this Invezz article."
+  },
+  {
+   "event_id": "E3_huang_exit",
+   "event_type": "company_news",
+   "event_date": "2026-11-12/13",
+   "storyline": "nvidia_huang",
+   "independent": [
+    "INVZ-10009737-01M7B730C0GX01MNNZ7QEWY8FX",
+    "IBTU-10010345-01M7BK47VG9KHVDR11EG6S8YXV",
+    "ZACK-105463-01M7APS5KVMKX477FN6M22X6H1"
+   ],
+   "same_event_other_angles": [
+    "IBTU-10010345-01M7BK47X8R5BF57G9PEPHW24B",
+    "IBTU-10010345-01M7BK47PM92PYW9CKQEPJK342"
+   ],
+   "translations_of": {
+    "INVZ-10009737-01M7B730C0GX01MNNZ7QEWY8FX": [
+     "INVZ-10010403-01M7BJKECY4XZMJ6B40E1JTE4X",
+     "INVZ-10010408-01M7BJKBZ76GSHZQ6SDBGVQ752"
+    ]
+   },
+   "trap": "Storyline has ~60+ articles over 5 days. Exit (13 Nov), reinstatement push (14-16 Nov), board reportedly rules out return (16 Nov), Huang keeps door open (17 Nov) are DIFFERENT events of one storyline."
+  },
+  {
+   "event_id": "E3d_huang_open_to_return",
+   "event_type": "company_news",
+   "event_date": "2026-11-17",
+   "storyline": "nvidia_huang",
+   "independent": [
+    "INVZ-10009737-01M7N83B6HGJSN8P6PRG6ZJBNJ",
+    "IBTU-10010345-01M7P70PMK2Y9VPWT0R33H9QS0"
+   ],
+   "translations_of": {
+    "INVZ-10009737-01M7N83B6HGJSN8P6PRG6ZJBNJ": [
+     "INVZ-10010403-01M7NA5ES8QS47ATVJQFW91X59",
+     "INVZ-10010408-01M7NA5EKB3ZRYM9ZGTXD9BF0K"
+    ]
+   },
+   "trap": "Material update vs 16 Nov digest ('Nvidia rules out Huang return'). Not a factual contradiction: two parties, both must be attributed (board vs Huang). IBTimes UK covers the same statement (\"Your Return Is Inevitable\", 17 Nov 22:16) - found by the grouping run, confirmed by headline."
+  }
+ ],
+ "must_stay_separate": [
+  {
+   "id": "INVZ-10009737-01M7ABX7T587QRQQRS8H072NV0",
+   "why": "Preview before PPI release ('ahead of PPI data') - not the result",
+   "translations": [
+    "INVZ-10010403-01M7AP91R239ESNPPM7NT9YBCZ",
+    "INVZ-10010408-01M7AP8YXAPRXPJA16V1JHKE2V"
+   ]
+  },
+  {
+   "id": "ACTI-10010414-01M7AP8WXVM40TJQWQHD9EFDGM",
+   "why": "FX reaction story (USD/JPY) citing PPI - market move, own story; may be linked as reaction, not merged"
+  },
+  {
+   "id": "INVZ-10009737-01M7AZ2REJP3Q9Z912HCVG034A",
+   "why": "Chip-stock selloff 13 Nov; mentions inflation data, Nvidia and Intel - classic bridge article that would chain E1, E2, E3 into one blob",
+   "translations": [
+    "INVZ-10010403-01M7BJKECGKT1PJS6P5HMX8580",
+    "INVZ-10010408-01M7BJKBZ2ZVREQ1BWYVPCQQD9"
+   ]
+  },
+  {
+   "id": "INVZ-10009737-01M7N0N67J80W3E4CXG7AK97F2",
+   "why": "Intel falls because Nvidia cut its Intel stake - same two companies, different event",
+   "translations": [
+    "INVZ-10010403-01M7NA5ETJR9HXZJP6BAP1PBZS",
+    "INVZ-10010408-01M7NA5EK3QJ4T5JMH6JTCDYYC"
+   ]
+  },
+  {
+   "id": "INVZ-10009737-01M7JY02BPQBAB3K5G2F2KQEX3",
+   "why": "Evening digest = roundup of several events; never use as cluster anchor, only as corroboration",
+   "translations": [
+    "INVZ-10010403-01M7KHGP6PBKRQSVM9V9AGX14Y",
+    "INVZ-10010408-01M7KHGP0SJ82NJYBKBJJY9M1T"
+   ]
+  }
+ ]
+}

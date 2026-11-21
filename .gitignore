@@ -1,0 +1,14 @@
+# Newstex data: hackathon use only, never commit
+data/
+*.jsonl
+newstex*
+*.zip
+# local builds and test variants
+web/app.html
+web/app.local.html
+web/config.local.json
+web/site/index.local.html
+out/wf_*_local.json
+node_modules/
+.DS_Store
+.env

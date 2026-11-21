@@ -1,0 +1,36 @@
+{
+    "run_id": "m2-local",
+    "test_mode": "advice_in_script",
+    "injected_faults": [],
+    "counts": {
+        "extracted": 6,
+        "verified": 6,
+        "rejected": 0
+    },
+    "issues": [
+        {
+            "where": "segment 2 (claim)",
+            "reason": "investment_advice_language"
+        }
+    ],
+    "usage_log": [
+        {
+            "run_id": "m2-local",
+            "stage": "extract_claims",
+            "article_id": "nx:FIXTURE-0001",
+            "cache_key": "sha256:d04a565c3848807aff6c0ff9c7214541e783ab131ea06deacdef53b095b5e043|extract-v1|gpt-5-mini",
+            "cache_hit": false,
+            "mocked": true,
+            "model": "gpt-5-mini (MOCK)",
+            "input_tokens": 0,
+            "cached_input_tokens": 0,
+            "output_tokens": 0,
+            "reasoning_tokens": 0,
+            "est_cost_usd": 0,
+            "price_known": true,
+            "escalated": false,
+            "retries": null,
+            "logged_at": "2026-11-20T15:59:14.615Z"
+        }
+    ]
+}

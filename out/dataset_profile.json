@@ -1,0 +1,1634 @@
+{
+ "files": {
+  "actionforex": {
+   "rows": 36,
+   "parse_errors": 0,
+   "publication_names": {
+    "ActionForex": 36
+   },
+   "languages": {
+    "en": 36
+   },
+   "date_min": "2026-11-13T07:55:38+00:00",
+   "date_max": "2026-11-18T13:48:04+00:00",
+   "from_2026_11_13": 36,
+   "text_len_median": 3659,
+   "text_chars_total": 241916,
+   "field_presence": {
+    "$id": 36,
+    "permalink": 36,
+    "date": 36,
+    "language": 36,
+    "html_content": 36,
+    "source": 36,
+    "publication.name": 36,
+    "categories": 36,
+    "provider_categories": 36,
+    "company_tickers": 0,
+    "category_scores": 36
+   },
+   "all_top_level_keys": {
+    "categories": 36,
+    "category_scores": 36,
+    "company_tickers": 36,
+    "content_commit_token": 36,
+    "content_lock": 36,
+    "date": 36,
+    "external_id": 36,
+    "feed": 36,
+    "language": 36,
+    "path": 36,
+    "permalink": 36,
+    "provider_categories": 36,
+    "provider_tickers": 36,
+    "pub_type": 36,
+    "publication": 36,
+    "received_at": 36,
+    "source": 36,
+    "stats": 36,
+    "status": 36,
+    "thumb_url": 36,
+    "version": 36,
+    "$type": 36,
+    "$id": 36,
+    "publisher": 36,
+    "html_content": 36
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Live Comments",
+     26
+    ],
+    [
+     "United States",
+     13
+    ],
+    [
+     "Market Overview",
+     9
+    ],
+    [
+     "Fed",
+     8
+    ],
+    [
+     "Japan",
+     7
+    ],
+    [
+     "Eurozone",
+     6
+    ],
+    [
+     "European Union",
+     4
+    ],
+    [
+     "New Zealand",
+     4
+    ],
+    [
+     "China",
+     4
+    ],
+    [
+     "Stocks",
+     4
+    ],
+    [
+     "Australia",
+     4
+    ],
+    [
+     "United Kingdom",
+     3
+    ],
+    [
+     "BoJ",
+     3
+    ],
+    [
+     "RBNZ",
+     3
+    ],
+    [
+     "RBA",
+     3
+    ],
+    [
+     "Germany",
+     2
+    ],
+    [
+     "JPY",
+     2
+    ],
+    [
+     "USD",
+     2
+    ],
+    [
+     "Gold",
+     2
+    ],
+    [
+     "Yields",
+     2
+    ],
+    [
+     "BoC",
+     2
+    ],
+    [
+     "Canada",
+     2
+    ],
+    [
+     "Oil",
+     2
+    ],
+    [
+     "Russia",
+     2
+    ],
+    [
+     "ECB",
+     1
+    ],
+    [
+     "Weekly Report",
+     1
+    ],
+    [
+     "Bitcoin",
+     1
+    ],
+    [
+     "US02Y",
+     1
+    ],
+    [
+     "BoE",
+     1
+    ],
+    [
+     "CAD",
+     1
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 4,
+    "2026-11-14": 1,
+    "2026-11-16": 10,
+    "2026-11-17": 12,
+    "2026-11-18": 9
+   }
+  },
+  "ibtimes_uk": {
+   "rows": 298,
+   "parse_errors": 0,
+   "publication_names": {
+    "International Business Times UK": 298
+   },
+   "languages": {
+    "en": 298
+   },
+   "date_min": "2026-11-13T13:53:07+00:00",
+   "date_max": "2026-11-19T02:43:01+00:00",
+   "from_2026_11_13": 298,
+   "text_len_median": 3858,
+   "text_chars_total": 1193251,
+   "field_presence": {
+    "$id": 298,
+    "permalink": 298,
+    "date": 298,
+    "language": 298,
+    "html_content": 298,
+    "source": 298,
+    "publication.name": 298,
+    "categories": 297,
+    "provider_categories": 298,
+    "company_tickers": 0,
+    "category_scores": 298
+   },
+   "all_top_level_keys": {
+    "categories": 298,
+    "category_scores": 298,
+    "company_tickers": 298,
+    "date": 298,
+    "external_id": 298,
+    "feed": 298,
+    "language": 298,
+    "path": 298,
+    "permalink": 298,
+    "provider_categories": 298,
+    "provider_tickers": 298,
+    "pub_type": 298,
+    "publication": 298,
+    "received_at": 298,
+    "source": 298,
+    "stats": 298,
+    "status": 298,
+    "thumb_url": 298,
+    "version": 298,
+    "$type": 298,
+    "$id": 298,
+    "publisher": 298,
+    "html_content": 298
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Trending",
+     74
+    ],
+    [
+     "World",
+     56
+    ],
+    [
+     "Entertainment",
+     40
+    ],
+    [
+     "Crime",
+     34
+    ],
+    [
+     "Politics",
+     27
+    ],
+    [
+     "Royals",
+     9
+    ],
+    [
+     "Technology",
+     8
+    ],
+    [
+     "Business",
+     8
+    ],
+    [
+     "National",
+     7
+    ],
+    [
+     "Personal Finance",
+     6
+    ],
+    [
+     "Games",
+     6
+    ],
+    [
+     "Sports",
+     5
+    ],
+    [
+     "Science",
+     4
+    ],
+    [
+     "CyberSecurity",
+     4
+    ],
+    [
+     "Cryptocurrency",
+     2
+    ],
+    [
+     "Markets",
+     2
+    ],
+    [
+     "Retail",
+     1
+    ],
+    [
+     "Healthcare",
+     1
+    ],
+    [
+     "Artificial Intelligence",
+     1
+    ],
+    [
+     "Gold",
+     1
+    ],
+    [
+     "Finance & Banking",
+     1
+    ],
+    [
+     "SME UK",
+     1
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 38,
+    "2026-11-14": 47,
+    "2026-11-15": 39,
+    "2026-11-16": 59,
+    "2026-11-17": 58,
+    "2026-11-18": 52,
+    "2026-11-19": 5
+   }
+  },
+  "invezz_de": {
+   "rows": 120,
+   "parse_errors": 0,
+   "publication_names": {
+    "Invezz - German": 120
+   },
+   "languages": {
+    "de": 120
+   },
+   "date_min": "2026-11-13T11:08:02+00:00",
+   "date_max": "2026-11-18T21:48:26+00:00",
+   "from_2026_11_13": 120,
+   "text_len_median": 4518,
+   "text_chars_total": 613204,
+   "field_presence": {
+    "$id": 120,
+    "permalink": 120,
+    "date": 120,
+    "language": 120,
+    "html_content": 120,
+    "source": 120,
+    "publication.name": 120,
+    "categories": 120,
+    "provider_categories": 118,
+    "company_tickers": 2,
+    "category_scores": 120
+   },
+   "all_top_level_keys": {
+    "categories": 120,
+    "category_scores": 120,
+    "company_tickers": 120,
+    "content_commit_token": 120,
+    "content_lock": 120,
+    "date": 120,
+    "external_id": 120,
+    "feed": 120,
+    "language": 120,
+    "path": 120,
+    "permalink": 120,
+    "provider_categories": 118,
+    "provider_tickers": 120,
+    "pub_type": 120,
+    "publication": 120,
+    "received_at": 120,
+    "source": 120,
+    "stats": 120,
+    "status": 120,
+    "thumb_url": 120,
+    "version": 120,
+    "$type": 120,
+    "$id": 120,
+    "publisher": 120,
+    "html_content": 120
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Aktienmarkt",
+     91
+    ],
+    [
+     "Trading-ideen",
+     21
+    ],
+    [
+     "Technologie",
+     12
+    ],
+    [
+     "Krypto",
+     9
+    ],
+    [
+     "Rohstoffe",
+     7
+    ],
+    [
+     "K\u00fcnstliche intelligenz",
+     5
+    ],
+    [
+     "Bitcoin",
+     3
+    ],
+    [
+     "Solana",
+     2
+    ],
+    [
+     "Soziale medien",
+     2
+    ],
+    [
+     "Altcoin",
+     2
+    ],
+    [
+     "Einzelhandel",
+     2
+    ],
+    [
+     "Edelmetalle",
+     2
+    ],
+    [
+     "Energie",
+     2
+    ],
+    [
+     "Indizes",
+     2
+    ],
+    [
+     "XRP",
+     2
+    ],
+    [
+     "Uncategorized",
+     2
+    ],
+    [
+     "Fusionen und \u00fcbernahmen",
+     1
+    ],
+    [
+     "Verarbeitende industrie",
+     1
+    ],
+    [
+     "Inflation",
+     1
+    ],
+    [
+     "Sport",
+     1
+    ],
+    [
+     "Wirtschaft",
+     1
+    ],
+    [
+     "B\u00f6rsengang",
+     1
+    ],
+    [
+     "Dienstleistungen",
+     1
+    ],
+    [
+     "Gaming",
+     1
+    ],
+    [
+     "B\u00f6rsengehandelte fonds",
+     1
+    ],
+    [
+     "Forex",
+     1
+    ],
+    [
+     "Alternative investitionen",
+     1
+    ],
+    [
+     "Hedgefonds",
+     1
+    ],
+    [
+     "Cannabis",
+     1
+    ],
+    [
+     "Interviews",
+     1
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 30,
+    "2026-11-14": 4,
+    "2026-11-15": 1,
+    "2026-11-16": 31,
+    "2026-11-17": 29,
+    "2026-11-18": 25
+   }
+  },
+  "invezz_en": {
+   "rows": 166,
+   "parse_errors": 0,
+   "publication_names": {
+    "Invezz": 166
+   },
+   "languages": {
+    "en": 166
+   },
+   "date_min": "2026-11-13T10:58:23+00:00",
+   "date_max": "2026-11-19T08:46:48+00:00",
+   "from_2026_11_13": 166,
+   "text_len_median": 4021,
+   "text_chars_total": 755999,
+   "field_presence": {
+    "$id": 166,
+    "permalink": 166,
+    "date": 166,
+    "language": 166,
+    "html_content": 166,
+    "source": 166,
+    "publication.name": 166,
+    "categories": 166,
+    "provider_categories": 166,
+    "company_tickers": 6,
+    "category_scores": 166
+   },
+   "all_top_level_keys": {
+    "categories": 166,
+    "category_scores": 166,
+    "company_tickers": 166,
+    "date": 166,
+    "external_id": 166,
+    "feed": 166,
+    "language": 166,
+    "path": 166,
+    "permalink": 166,
+    "provider_categories": 166,
+    "provider_tickers": 166,
+    "pub_type": 166,
+    "publication": 166,
+    "received_at": 166,
+    "source": 166,
+    "stats": 166,
+    "status": 166,
+    "thumb_url": 166,
+    "version": 166,
+    "$type": 166,
+    "$id": 166,
+    "publisher": 166,
+    "html_content": 166
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Stock market",
+     114
+    ],
+    [
+     "Trading Ideas",
+     25
+    ],
+    [
+     "Crypto",
+     21
+    ],
+    [
+     "Tech",
+     14
+    ],
+    [
+     "Commodities",
+     11
+    ],
+    [
+     "Artificial intelligence",
+     9
+    ],
+    [
+     "Bitcoin",
+     4
+    ],
+    [
+     "Brokers",
+     4
+    ],
+    [
+     "Precious metals",
+     4
+    ],
+    [
+     "Energy",
+     4
+    ],
+    [
+     "XRP",
+     4
+    ],
+    [
+     "Solana",
+     3
+    ],
+    [
+     "Uncategorized",
+     3
+    ],
+    [
+     "Political",
+     2
+    ],
+    [
+     "Social Media",
+     2
+    ],
+    [
+     "Altcoins",
+     2
+    ],
+    [
+     "Retail",
+     2
+    ],
+    [
+     "DeFi",
+     2
+    ],
+    [
+     "Indices",
+     2
+    ],
+    [
+     "IPO",
+     2
+    ],
+    [
+     "Forex",
+     2
+    ],
+    [
+     "Ethereum",
+     2
+    ],
+    [
+     "Mergers & Acquisitions",
+     1
+    ],
+    [
+     "Manufacturing",
+     1
+    ],
+    [
+     "Inflation",
+     1
+    ],
+    [
+     "Sports",
+     1
+    ],
+    [
+     "Personal finance",
+     1
+    ],
+    [
+     "Finance & banking",
+     1
+    ],
+    [
+     "Economic",
+     1
+    ],
+    [
+     "Services",
+     1
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 31,
+    "2026-11-14": 4,
+    "2026-11-15": 1,
+    "2026-11-16": 40,
+    "2026-11-17": 39,
+    "2026-11-18": 41,
+    "2026-11-19": 10
+   }
+  },
+  "invezz_nl": {
+   "rows": 120,
+   "parse_errors": 0,
+   "publication_names": {
+    "Invezz - Dutch": 120
+   },
+   "languages": {
+    "nl": 120
+   },
+   "date_min": "2026-11-13T11:07:24+00:00",
+   "date_max": "2026-11-18T21:48:15+00:00",
+   "from_2026_11_13": 120,
+   "text_len_median": 4430,
+   "text_chars_total": 595863,
+   "field_presence": {
+    "$id": 120,
+    "permalink": 120,
+    "date": 120,
+    "language": 120,
+    "html_content": 120,
+    "source": 120,
+    "publication.name": 120,
+    "categories": 116,
+    "provider_categories": 118,
+    "company_tickers": 2,
+    "category_scores": 117
+   },
+   "all_top_level_keys": {
+    "categories": 117,
+    "category_scores": 117,
+    "company_tickers": 120,
+    "content_commit_token": 120,
+    "content_lock": 120,
+    "date": 120,
+    "external_id": 120,
+    "feed": 120,
+    "language": 120,
+    "path": 120,
+    "permalink": 120,
+    "provider_categories": 118,
+    "provider_tickers": 120,
+    "pub_type": 120,
+    "publication": 120,
+    "received_at": 120,
+    "source": 120,
+    "stats": 117,
+    "status": 120,
+    "thumb_url": 120,
+    "version": 120,
+    "$type": 120,
+    "$id": 120,
+    "publisher": 120,
+    "html_content": 120
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Aandelenmarkt",
+     91
+    ],
+    [
+     "Tradingidee\u00ebn",
+     21
+    ],
+    [
+     "Technologie",
+     12
+    ],
+    [
+     "Crypto",
+     9
+    ],
+    [
+     "Grondstoffen",
+     7
+    ],
+    [
+     "Kunstmatige intelligentie",
+     5
+    ],
+    [
+     "Bitcoin",
+     3
+    ],
+    [
+     "Solana",
+     2
+    ],
+    [
+     "Sociale media",
+     2
+    ],
+    [
+     "Altcoin",
+     2
+    ],
+    [
+     "Detailhandel",
+     2
+    ],
+    [
+     "Edelmetalen",
+     2
+    ],
+    [
+     "Energie",
+     2
+    ],
+    [
+     "Indices",
+     2
+    ],
+    [
+     "XRP",
+     2
+    ],
+    [
+     "Uncategorized",
+     2
+    ],
+    [
+     "Fusies en overnames",
+     1
+    ],
+    [
+     "Industrie",
+     1
+    ],
+    [
+     "Inflatie",
+     1
+    ],
+    [
+     "Sport",
+     1
+    ],
+    [
+     "Economie",
+     1
+    ],
+    [
+     "Beursgang",
+     1
+    ],
+    [
+     "Diensten",
+     1
+    ],
+    [
+     "Gaming",
+     1
+    ],
+    [
+     "Beursgenoteerde fondsen",
+     1
+    ],
+    [
+     "Forex",
+     1
+    ],
+    [
+     "Alternatieve beleggingen",
+     1
+    ],
+    [
+     "Hedgefondsen",
+     1
+    ],
+    [
+     "Cannabis",
+     1
+    ],
+    [
+     "Interviews",
+     1
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 30,
+    "2026-11-14": 4,
+    "2026-11-15": 1,
+    "2026-11-16": 31,
+    "2026-11-17": 29,
+    "2026-11-18": 25
+   }
+  },
+  "zacks": {
+   "rows": 1000,
+   "parse_errors": 0,
+   "publication_names": {
+    "Zacks Investment Research": 1000
+   },
+   "languages": {
+    "en": 1000
+   },
+   "date_min": "2026-07-28T17:10:00+00:00",
+   "date_max": "2026-11-18T16:30:00+00:00",
+   "from_2026_11_13": 71,
+   "text_len_median": 4851,
+   "text_chars_total": 5620848,
+   "field_presence": {
+    "$id": 1000,
+    "permalink": 1000,
+    "date": 1000,
+    "language": 1000,
+    "html_content": 1000,
+    "source": 1000,
+    "publication.name": 1000,
+    "categories": 1000,
+    "provider_categories": 1000,
+    "company_tickers": 20,
+    "category_scores": 1000
+   },
+   "all_top_level_keys": {
+    "categories": 1000,
+    "category_score_audit": 775,
+    "category_scores": 1000,
+    "company_tickers": 1000,
+    "date": 1000,
+    "external_id": 1000,
+    "feed": 1000,
+    "language": 1000,
+    "path": 1000,
+    "permalink": 1000,
+    "provider_categories": 1000,
+    "provider_tickers": 1000,
+    "pub_type": 1000,
+    "publication": 1000,
+    "received_at": 1000,
+    "source": 1000,
+    "stats": 1000,
+    "status": 1000,
+    "thumb_url": 326,
+    "version": 1000,
+    "$type": 1000,
+    "$id": 1000,
+    "publisher": 1000,
+    "html_content": 1000
+   },
+   "categories_shape": {
+    "type": "list",
+    "item_type": "str",
+    "item_keys": null
+   },
+   "provider_categories_top": [
+    [
+     "Analyst Blog",
+     49
+    ],
+    [
+     "Fundamental Analysis",
+     49
+    ],
+    [
+     "Press Releases",
+     45
+    ],
+    [
+     "Tale of the Tape",
+     44
+    ],
+    [
+     "Analyst Blog Plus",
+     44
+    ],
+    [
+     "ETF News and Commentary",
+     42
+    ],
+    [
+     "Smart Beta ETF",
+     41
+    ],
+    [
+     "Zacks 1 Rank Additions",
+     41
+    ],
+    [
+     "Realtime BLOG",
+     39
+    ],
+    [
+     "Style Box ETF",
+     38
+    ],
+    [
+     "Microcap Article",
+     37
+    ],
+    [
+     "Mutual Fund Equity Report",
+     37
+    ],
+    [
+     "Industry Outlook",
+     36
+    ],
+    [
+     "52 Week High",
+     36
+    ],
+    [
+     "Investment Ideas",
+     34
+    ],
+    [
+     "Mutual Fund Commentary",
+     34
+    ],
+    [
+     "Bear of the Day",
+     33
+    ],
+    [
+     "Best of Funds",
+     32
+    ],
+    [
+     "Sector ETF",
+     32
+    ],
+    [
+     "Bull of the Day",
+     31
+    ],
+    [
+     "Economic Highlights",
+     31
+    ],
+    [
+     "Weekend Wisdom",
+     17
+    ],
+    [
+     "Stocks in the News",
+     14
+    ],
+    [
+     "Ahead of Wall Street",
+     14
+    ],
+    [
+     "Market News",
+     13
+    ],
+    [
+     "Research Daily",
+     13
+    ],
+    [
+     "Corporate Summary",
+     13
+    ],
+    [
+     "Screen of the Week",
+     12
+    ],
+    [
+     "Video Blog",
+     11
+    ],
+    [
+     "Personal Money Management",
+     9
+    ]
+   ],
+   "per_day_from_nov13": {
+    "2026-11-13": 13,
+    "2026-11-16": 15,
+    "2026-11-17": 23,
+    "2026-11-18": 20
+   }
+  }
+ },
+ "notes": "aggregates only; no article text",
+ "daily_total_from_nov13": {
+  "2026-11-13": 146,
+  "2026-11-14": 60,
+  "2026-11-15": 42,
+  "2026-11-16": 186,
+  "2026-11-17": 190,
+  "2026-11-18": 172,
+  "2026-11-19": 15
+ },
+ "briefing_windows": {
+  "2026-11-17 06:00Z, last 24h": {
+   "total": 185,
+   "by_feed": {
+    "actionforex": 11,
+    "ibtimes_uk": 60,
+    "invezz_de": 30,
+    "invezz_en": 39,
+    "invezz_nl": 30,
+    "zacks": 15
+   }
+  },
+  "2026-11-17 06:00Z, last 48h": {
+   "total": 239,
+   "by_feed": {
+    "actionforex": 16,
+    "ibtimes_uk": 100,
+    "invezz_de": 33,
+    "invezz_en": 42,
+    "invezz_nl": 33,
+    "zacks": 15
+   }
+  },
+  "2026-11-18 06:00Z, last 24h": {
+   "total": 187,
+   "by_feed": {
+    "actionforex": 10,
+    "ibtimes_uk": 60,
+    "invezz_de": 28,
+    "invezz_en": 38,
+    "invezz_nl": 28,
+    "zacks": 23
+   }
+  },
+  "2026-11-18 06:00Z, last 48h": {
+   "total": 372,
+   "by_feed": {
+    "actionforex": 21,
+    "ibtimes_uk": 120,
+    "invezz_de": 58,
+    "invezz_en": 77,
+    "invezz_nl": 58,
+    "zacks": 38
+   }
+  },
+  "2026-11-19 06:00Z, last 24h": {
+   "total": 171,
+   "by_feed": {
+    "actionforex": 5,
+    "ibtimes_uk": 53,
+    "invezz_de": 25,
+    "invezz_en": 43,
+    "invezz_nl": 25,
+    "zacks": 20
+   }
+  },
+  "2026-11-19 06:00Z, last 48h": {
+   "total": 358,
+   "by_feed": {
+    "actionforex": 15,
+    "ibtimes_uk": 113,
+    "invezz_de": 53,
+    "invezz_en": 81,
+    "invezz_nl": 53,
+    "zacks": 43
+   }
+  }
+ },
+ "exact_duplicate_groups": {
+  "groups": 3,
+  "extra_copies": 4,
+  "examples": [
+   [
+    [
+     "zacks",
+     "ZACK-105463-01KYR3E2D0N9NHHA43JJARJ9BB"
+    ],
+    [
+     "zacks",
+     "ZACK-105463-01KYR3E2CTYGGD6XCP7VQRF8ZG"
+    ]
+   ],
+   [
+    [
+     "zacks",
+     "ZACK-105463-01KZEZ04F4ZBZ32QPA30GR2892"
+    ],
+    [
+     "zacks",
+     "ZACK-105463-01M20KZ6T1S96QDW97ZV7QNNQR"
+    ],
+    [
+     "zacks",
+     "ZACK-105463-01M20M8D04AJ8FE6KQZ6AMDJ50"
+    ]
+   ],
+   [
+    [
+     "zacks",
+     "ZACK-105463-01M00R1ZPEFQJ42H2TQNVQ6FHK"
+    ],
+    [
+     "zacks",
+     "ZACK-105463-01M010MQB7BD1NA68F7TVAJ4AX"
+    ]
+   ]
+  ]
+ },
+ "translation_pairing_rule": {
+  "de": {
+   "articles": 120,
+   "unique_match": 113,
+   "multiple_candidates": 6,
+   "no_match": 1,
+   "ambiguous_ids": [
+    "INVZ-10010403-01M7JN6D04MSTFVANKZFR0BNN7",
+    "INVZ-10010403-01M7JN6D0422DP3HJ4VWDNQSZ7",
+    "INVZ-10010403-01M7NA5ES1JEPNXHXXJSWSX7SR",
+    "INVZ-10010403-01M7NA5ETFX1D36M45P4AC85NJ",
+    "INVZ-10010403-01M7NA5ETJR9HXZJP6BAP1PBZS",
+    "INVZ-10010403-01M7QZ4HZMM6FXQSMAF017KZRH"
+   ]
+  },
+  "nl": {
+   "articles": 120,
+   "unique_match": 112,
+   "multiple_candidates": 7,
+   "no_match": 1,
+   "ambiguous_ids": [
+    "INVZ-10010408-01M7BJKC1E54A2ZVB16ASYKHNM",
+    "INVZ-10010408-01M7JN6CPK53G9MPZJ5Y67HTKZ",
+    "INVZ-10010408-01M7JN6CPD5J1QRGTYQQ1DV89F",
+    "INVZ-10010408-01M7NA5EPP2JA7H69RSH4X9QVK",
+    "INVZ-10010408-01M7NA5EKVSNE5NDXSFXPXNEAN",
+    "INVZ-10010408-01M7NA5EK3QJ4T5JMH6JTCDYYC",
+    "INVZ-10010408-01M7QZ4JJRNMWFF5PWY3VN6JZV"
+   ]
+  }
+ },
+ "answer_key_candidates": {
+  "ppi_october": {
+   "count": 16,
+   "by_feed": {
+    "actionforex": 2,
+    "invezz_de": 4,
+    "invezz_en": 5,
+    "invezz_nl": 5
+   },
+   "items": [
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7ABX7T587QRQQRS8H072NV0",
+     "date": "11-13 11:46",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YXAPRXPJA16V1JHKE2V",
+     "date": "11-13 11:48",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R239ESNPPM7NT9YBCZ",
+     "date": "11-13 11:48",
+     "lang": "de"
+    },
+    {
+     "feed": "actionforex",
+     "id": "ACTI-10010414-01M7AP8WCVYF7JHMQF5AF5PSKQ",
+     "date": "11-13 13:38",
+     "lang": "en"
+    },
+    {
+     "feed": "actionforex",
+     "id": "ACTI-10010414-01M7AP8WXVM40TJQWQHD9EFDGM",
+     "date": "11-13 14:04",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AMS30JH9CG20KPB7WFHP1P",
+     "date": "11-13 14:23",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R04FNA1Y3JBZWX2EVN",
+     "date": "11-13 14:25",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YTKFS6J0E74GTFXKS4Z",
+     "date": "11-13 14:26",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7ANMKDAMQVECA7TJH3TMFJ4",
+     "date": "11-13 14:39",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YTBZJDD13RCT6H5ZGJH",
+     "date": "11-13 14:42",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91QZ28M7MJWV9FEXP6EM",
+     "date": "11-13 14:42",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AWG7YK8MX8QDEH1J23VTK7",
+     "date": "11-13 16:37",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7BJKC1KBJX94P9Z1WPTB1H5",
+     "date": "11-13 16:39",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7BJKEC7051D02FGX199E0TY",
+     "date": "11-13 16:39",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AZ2REJP3Q9Z912HCVG034A",
+     "date": "11-13 17:20",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7BJKBZ2ZVREQ1BWYVPCQQD9",
+     "date": "11-13 17:22",
+     "lang": "nl"
+    }
+   ]
+  },
+  "intel": {
+   "count": 11,
+   "by_feed": {
+    "ibtimes_uk": 1,
+    "invezz_de": 3,
+    "invezz_en": 4,
+    "invezz_nl": 3
+   },
+   "items": [
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AZ2REJP3Q9Z912HCVG034A",
+     "date": "11-13 17:20",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7BJKECGKT1PJS6P5HMX8580",
+     "date": "11-13 17:22",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7BJKBZ2ZVREQ1BWYVPCQQD9",
+     "date": "11-13 17:22",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7HXNFGVTSR4PFBV3VDMT1PA",
+     "date": "11-16 10:12",
+     "lang": "en"
+    },
+    {
+     "feed": "ibtimes_uk",
+     "id": "IBTU-10010345-01M7JNQ6RA505ZSJND1Q5P6DB9",
+     "date": "11-16 16:47",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7JY02BPQBAB3K5G2F2KQEX3",
+     "date": "11-16 19:40",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7KHGP0SJ82NJYBKBJJY9M1T",
+     "date": "11-16 19:42",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7KHGP6PBKRQSVM9V9AGX14Y",
+     "date": "11-16 19:42",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7N0N67J80W3E4CXG7AK97F2",
+     "date": "11-17 15:04",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7NA5ETJR9HXZJP6BAP1PBZS",
+     "date": "11-17 15:07",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7NA5EK3QJ4T5JMH6JTCDYYC",
+     "date": "11-17 15:07",
+     "lang": "nl"
+    }
+   ]
+  },
+  "nvidia_huang": {
+   "count": 162,
+   "by_feed": {
+    "actionforex": 4,
+    "ibtimes_uk": 15,
+    "invezz_de": 41,
+    "invezz_en": 58,
+    "invezz_nl": 43,
+    "zacks": 1
+   },
+   "items": [
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7A91Q487PCGY7AABMHF0H0S",
+     "date": "11-13 10:58",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7A9M1FK1XWG7XW4R83NTNY6",
+     "date": "11-13 11:06",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YXER115SWHR1BF8T26N",
+     "date": "11-13 11:13",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R2E4E91FFZXC2D8SPM",
+     "date": "11-13 11:14",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7ABX7T587QRQQRS8H072NV0",
+     "date": "11-13 11:46",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YXAPRXPJA16V1JHKE2V",
+     "date": "11-13 11:48",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AEFNN3KDY13P99VECT44RF",
+     "date": "11-13 12:31",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R19CZT3CBQFG1YX452",
+     "date": "11-13 12:33",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YX2S02BYSH33JJY0CFP",
+     "date": "11-13 12:33",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AF1YXSXM487CS6XVNR5Q86",
+     "date": "11-13 12:44",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R1VWDTKPRDKR72ZRBY",
+     "date": "11-13 12:47",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YYH4V0286MEJHD4YEF6",
+     "date": "11-13 12:47",
+     "lang": "nl"
+    },
+    {
+     "feed": "zacks",
+     "id": "ZACK-105463-01M7APS5KVMKX477FN6M22X6H1",
+     "date": "11-13 13:00",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AGFRKS8EBE5D00KSPG03CY",
+     "date": "11-13 13:09",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YW2V088VC10E8MD9MCR",
+     "date": "11-13 13:10",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R1SWMSRZ93WZ70BH94",
+     "date": "11-13 13:12",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AKXK0Y8RNGGGWYZ2BN0ZYM",
+     "date": "11-13 14:08",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91R0P1583BWTXT47QGDA",
+     "date": "11-13 14:10",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YTR8976TECD55P59FR0",
+     "date": "11-13 14:11",
+     "lang": "nl"
+    },
+    {
+     "feed": "ibtimes_uk",
+     "id": "IBTU-10010345-01M7APSYSBC41V7Z537WZJ5VDG",
+     "date": "11-13 14:18",
+     "lang": "en"
+    },
+    {
+     "feed": "ibtimes_uk",
+     "id": "IBTU-10010345-01M7APSYN8HHPY0SXPY58AKPW7",
+     "date": "11-13 14:38",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7ANMKDAMQVECA7TJH3TMFJ4",
+     "date": "11-13 14:39",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7AP8YTBZJDD13RCT6H5ZGJH",
+     "date": "11-13 14:42",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7AP91QZ28M7MJWV9FEXP6EM",
+     "date": "11-13 14:42",
+     "lang": "de"
+    },
+    {
+     "feed": "ibtimes_uk",
+     "id": "IBTU-10010345-01M7BK47X8R5BF57G9PEPHW24B",
+     "date": "11-13 15:05",
+     "lang": "en"
+    },
+    {
+     "feed": "ibtimes_uk",
+     "id": "IBTU-10010345-01M7BK47VG9KHVDR11EG6S8YXV",
+     "date": "11-13 15:05",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7AQXRNKT5XB7VZNMFQ8AJBC",
+     "date": "11-13 15:19",
+     "lang": "en"
+    },
+    {
+     "feed": "invezz_de",
+     "id": "INVZ-10010403-01M7BJKEFNNSC2XY4X616Y8SS1",
+     "date": "11-13 15:21",
+     "lang": "de"
+    },
+    {
+     "feed": "invezz_nl",
+     "id": "INVZ-10010408-01M7BJKC1E54A2ZVB16ASYKHNM",
+     "date": "11-13 15:22",
+     "lang": "nl"
+    },
+    {
+     "feed": "invezz_en",
+     "id": "INVZ-10009737-01M7ASXYPP3MERMF5P48HERJ0F",
+     "date": "11-13 15:53",
+     "lang": "en"
+    }
+   ]
+  }
+ }
+}

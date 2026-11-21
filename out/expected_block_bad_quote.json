@@ -1,0 +1,38 @@
+{
+    "run_id": "m2-local",
+    "test_mode": "bad_quote",
+    "injected_faults": [
+        "bad_quote -> c1"
+    ],
+    "counts": {
+        "extracted": 6,
+        "verified": 5,
+        "rejected": 1
+    },
+    "issues": [
+        {
+            "where": "claim c1 (clm_18fb5498b15097)",
+            "reason": "evidence_not_found_in_article"
+        }
+    ],
+    "usage_log": [
+        {
+            "run_id": "m2-local",
+            "stage": "extract_claims",
+            "article_id": "nx:FIXTURE-0001",
+            "cache_key": "sha256:d04a565c3848807aff6c0ff9c7214541e783ab131ea06deacdef53b095b5e043|extract-v1|gpt-5-mini",
+            "cache_hit": false,
+            "mocked": true,
+            "model": "gpt-5-mini (MOCK)",
+            "input_tokens": 0,
+            "cached_input_tokens": 0,
+            "output_tokens": 0,
+            "reasoning_tokens": 0,
+            "est_cost_usd": 0,
+            "price_known": true,
+            "escalated": false,
+            "retries": null,
+            "logged_at": "2026-11-20T15:59:14.451Z"
+        }
+    ]
+}

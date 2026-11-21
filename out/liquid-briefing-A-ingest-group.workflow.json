@@ -1,0 +1,667 @@
+{
+  "name": "Liquid Briefing - A ingest & group",
+  "nodes": [
+    {
+      "name": "Upload JSONL files",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "257a4099-4f75-4c85-9a4f-4b3791838db5",
+      "parameters": {
+        "formTitle": "Liquid Briefing - load Newstex snapshot",
+        "formDescription": "Upload all six .jsonl files at once. Existing rows in lb_stories / lb_articles are replaced.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "jsonl_files",
+              "fieldType": "file",
+              "multipleFiles": true,
+              "acceptFileTypes": ".jsonl",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5948b98b-5b84-4817-8a7b-7f6808be2f78"
+    },
+    {
+      "name": "Parse JSONL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// NODE: \"Parse JSONL\"   (Code node, Run Once for All Items)\n// Input: items with binary files (Form upload, or \"Read Files from Disk\").\n// Output: one item per article row. Rows are passed through unchanged.\n// ============================================================================\nconst out = [];\nconst files = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const bin = items[i].binary || {};\n  for (const key of Object.keys(bin)) {\n    const name = bin[key].fileName || key;\n    if (!/\\.jsonl?$/i.test(name)) { files.push({ file: name, skipped: 'not .jsonl' }); continue; }\n    const buf = await this.helpers.getBinaryDataBuffer(i, key);\n    const lines = buf.toString('utf8').split(/\\r?\\n/);\n    let ok = 0, bad = 0;\n    for (const line of lines) {\n      if (!line.trim()) continue;\n      try { out.push({ json: JSON.parse(line) }); ok++; } catch (e) { bad++; }\n    }\n    files.push({ file: name, rows: ok, parse_errors: bad });\n  }\n}\nif (!out.length) throw new Error('No JSONL rows found. Upload the .jsonl files (workflow setting \"binary mode\" must be \"separate\"). Files seen: ' + JSON.stringify(files));\n// file summary travels on the first row (removed again in the next node)\nout[0].json.__files = files;\nreturn out;\n"
+      },
+      "id": "75980a91-eefc-43c2-95c6-4440100899c4"
+    },
+    {
+      "name": "Normalize, link & group",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// NODE: \"Normalize, link & group\"   (Code node, Run Once for All Items)\n// Workflow A, step 1. No LLM. Input: one item per raw Newstex row (from \"Parse JSONL\").\n// Output: one item per STORY (event cluster) with its member articles, plus one\n// final item { _report: ... } with counts, ambiguous pairs and settings.\n// ============================================================================\nconst CFG = {\n  GROUP_FROM: '2026-11-12T00:00:00Z',  // older articles are indexed as archive, not grouped\n  BRIEFING_DATE: '2026-11-19',         // used for recency in the editorial score\n  TRANSLATION_MAX_MIN: 15,             // same author + nearest EN edition within 15 min\n  PAIR_MAX_HOURS: 30,                  // two articles further apart are never the same event\n  CLUSTER_MAX_SPAN_HOURS: 36,          // a cluster may not stretch beyond this (multi-day sagas split into events)\n  MERGE_THRESHOLD: 0.30,               // average-link cosine needed to merge two clusters\n  MERGE_THRESHOLD_PASS2: 0.20,         // lower bar, only between clusters that already have >= 2 articles each\n  AMBIGUOUS_LOW: 0.20,\n  ENTITY_BONUS: 0.08,                  // per shared named entity beyond the first (resists one-word bridges)\n  ENTITY_BONUS_CAP: 0.16,\n  EVENT_TYPE_BONUS: 0.05,              // same coarse event type (legal, leadership, macro_data, ...)\n  EVENT_TYPE_PENALTY: 0.6,             // different event types: same company is not the same story                 // [LOW, THRESHOLD) + shared entity -> candidate for a cheap LLM check\n  KEEP_TEXT_FOR_TABLE: true,\n};\n\n// ---------------------------------------------------------------------------\n// 1. normalize\n// ---------------------------------------------------------------------------\nconst get = (o, p) => p.split('.').reduce((x, k) => (x == null ? undefined : x[k]), o);\nconst clean = s => String(s || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\nfunction cyrb53(str, seed = 0) {\n  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;\n  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }\n  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);\n  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);\n  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0');\n}\nconst FEED_BY_PUB = { 'Invezz': 'invezz_en', 'Invezz - German': 'invezz_de', 'Invezz - Dutch': 'invezz_nl', 'ActionForex': 'actionforex', 'International Business Times UK': 'ibtimes_uk', 'Zacks Investment Research': 'zacks' };\n\nconst seen = new Set();\nconst articles = [];\nlet skipped_no_id = 0, skipped_dup_id = 0;\nfor (const it of $input.all()) {\n  const r = it.json;\n  const id = r['$id'];\n  if (!id) { skipped_no_id++; continue; }\n  if (seen.has(id)) { skipped_dup_id++; continue; }\n  seen.add(id);\n  const text = clean(r.text_content);\n  const pub = get(r, 'publication.name') || 'Unknown';\n  articles.push({\n    article_id: id,\n    feed: FEED_BY_PUB[pub] || pub,\n    publication: pub,\n    permalink: r.permalink || null,\n    language: (r.language || 'en').slice(0, 2),\n    published_at: r.date,\n    t: Date.parse(r.date),\n    headline: clean(r.headline),\n    excerpt: clean(r.excerpt),\n    author: r.source || null,\n    provider_categories: Array.isArray(r.provider_categories) ? r.provider_categories : [],\n    tickers: Array.isArray(r.company_tickers) ? r.company_tickers : [],\n    content_hash: 'cyrb53:' + cyrb53(text.toLowerCase()),\n    text_len: text.length,\n    text_content: text,\n    role: null,            // anchor | member | translation | exact_copy | roundup | archive\n    translation_of: null,\n    copy_of: null,\n    story_id: null,\n  });\n}\nconst fromT = Date.parse(CFG.GROUP_FROM);\nfor (const a of articles) if (!(a.t >= fromT)) a.role = 'archive';\n\n// ---------------------------------------------------------------------------\n// 2. exact copies (same cleaned body)\n// ---------------------------------------------------------------------------\nconst byHash = {};\nfor (const a of articles) {\n  if (a.text_len < 200) continue;\n  if (byHash[a.content_hash]) { a.role = a.role === 'archive' ? 'archive' : 'exact_copy'; a.copy_of = byHash[a.content_hash].article_id; }\n  else byHash[a.content_hash] = a;\n}\n\n// ---------------------------------------------------------------------------\n// 3. translations: DE/NL -> nearest EN Invezz by same author within 15 min\n// ---------------------------------------------------------------------------\nconst enInvezz = articles.filter(a => a.feed === 'invezz_en');\nlet translations_linked = 0, translations_unmatched = 0;\nfor (const a of articles) {\n  if (a.language === 'en' || a.role === 'archive') continue;\n  let best = null, bestD = Infinity;\n  for (const e of enInvezz) {\n    if (e.author !== a.author) continue;\n    const d = Math.abs(e.t - a.t);\n    if (d <= CFG.TRANSLATION_MAX_MIN * 60000 && d < bestD) { best = e; bestD = d; }\n  }\n  if (best) { a.role = 'translation'; a.translation_of = best.article_id; translations_linked++; }\n  else translations_unmatched++; // stays a normal (non-English) article\n}\n// DE/NL editions whose EN original is missing: link NL -> DE (same author, within window)\nfor (const a of articles) {\n  if (a.role || a.language !== 'nl') continue;\n  const twin = articles.find(o => o.language === 'de' && !o.role && o.author === a.author && Math.abs(o.t - a.t) <= CFG.TRANSLATION_MAX_MIN * 60000);\n  if (twin) { a.role = 'translation'; a.translation_of = twin.article_id; translations_linked++; translations_unmatched--; }\n}\nconst outletFamily = pub => pub.replace(/ - (German|Dutch)$/, '');\n\n// ---------------------------------------------------------------------------\n// 4. roundups (digests): never anchor or merge\n// ---------------------------------------------------------------------------\nconst ROUNDUP = /\\b(evening digest|morning digest|digest:|\\d+ things to know|things to know before|stock market news for|week ahead|weekly recap|market wrap|avondoverzicht|ochtendoverzicht|abend-report|morgen-report|dinge vor|dingen om te weten)\\b/i;\nfor (const a of articles) if (!a.role && ROUNDUP.test(a.headline)) a.role = 'roundup';\n\n// ---------------------------------------------------------------------------\n// 5. features: TF-IDF over headline (x2) + excerpt + lead, entities, phase\n// ---------------------------------------------------------------------------\nconst STOP = new Set(('a about above after again against all also am an and any are as at be because been before being below between both but by can could did do does doing down during each few for from further had has have having he her here hers him his how i if in into is it its itself just me more most my no nor not now of off on once only or other our out over own same she should so some such than that the their them then there these they this those through to too under until up very was we were what when where which while who whom why will with would you your says said new over amid after says week day today friday thursday monday tuesday wednesday saturday sunday shares share stock stocks market markets price prices year years month percent per cent report reports reported what know things here how why now set top latest could may might one two three first last next back ahead per amid').split(' '));\nconst GENERIC_ENT = new Set(['US', 'U.S.', 'UK', 'Wall', 'Street', 'Stock', 'Stocks', 'Market', 'Markets', 'Dow', 'S&P', 'Nasdaq', 'ETF', 'ETFs', 'AI', 'CEO', 'The', 'This', 'Why', 'How', 'What', 'Is', 'Are', 'Can', 'Will', 'Friday', 'Thursday', 'Monday', 'Tuesday', 'Wednesday', 'Saturday', 'Sunday', 'Zacks', 'Rank', 'Q3', 'Q4', 'Analyst', 'Blog', 'Inc', 'Corp', 'Ltd', 'Here', 'After', 'As', 'In', 'On', 'For', 'To', 'Of', 'And', 'With', 'From', 'New', 'Report', 'Reports', 'Price', 'Prices', 'Today', 'Week', 'November', 'October']);\nconst tok = s => (s.toLowerCase().match(/[a-z0-9][a-z0-9&.\\-']*[a-z0-9]|[a-z0-9]/g) || []).map(w => w.replace(/'s$/, '')).filter(w => w.length > 2 && !STOP.has(w) && !/^\\d+$/.test(w));\nconst GENERIC_LC = new Set([...GENERIC_ENT].map(w => w.toLowerCase()));\nconst entitiesOf = s => new Set((s.match(/\\b([A-Z][a-zA-Z&.\\-]+|[A-Z]{2,})\\b/g) || []).map(w => w.toLowerCase().replace(/[.\\-]+$/, '')).filter(w => !GENERIC_LC.has(w) && !STOP.has(w) && w.length > 1));\n// Title-case headlines (IBTimes, Zacks) make every word look like a name: take names from excerpt + lead instead.\nfunction articleEntities(a) {\n  const body = a.excerpt + ' ' + a.text_content.slice(0, 400);\n  const ents = entitiesOf(body);\n  const hw = a.headline.split(/\\s+/);\n  const titleCase = hw.filter(w => /^[A-Z]/.test(w)).length / Math.max(1, hw.length) > 0.6;\n  for (const e of entitiesOf(a.headline)) if (!titleCase || ents.has(e) || /^[A-Z]{2,}$/.test(e.toUpperCase()) && a.headline.includes(e.toUpperCase())) ents.add(e);\n  return ents;\n}\n// Coarse event type from headline (else excerpt). Different primary types => unlikely the same event.\nconst EVENT_TYPES = [\n  ['legal', /\\b(lawsuit|class[- ]action|sued|sues|fraud|probe|investigation|charged|indicted|court|settlement|klage|rechtszaak)\\b/i],\n  ['leadership', /\\b(resign\\w*|steps? down|stepped down|exit|ousted|depart\\w*|successor|interim (ceo|cfo|chief)|leadership|reinstat\\w*|return as|comeback|war room|rücktritt|vertrek|aftreden)\\b/i],\n  ['macro_data', /\\b(ppi|cpi|gdp|inflation|payrolls|jobs report|retail sales|pmi|producer prices?|consumer prices?|unemployment|wholesale)\\b/i],\n  ['central_bank', /\\b(fed|ecb|boj|boe|rba|rbnz|boc|rate (hike|cut)s?|interest rates?|monetary policy)\\b/i],\n  ['earnings', /\\b(earnings|quarterly results|revenue|guidance|eps|q[1-4] results)\\b/i],\n  ['deal', /\\b(acqui\\w+|merger|takeover|buyout|stake|ipo|listing)\\b/i],\n  // headline-only: \"what moved afterwards\" is its own story, not the event that moved it\n  ['market_move', /\\b(stocks?|shares|dow|nasdaq|s&p|futures|index|indices)\\b.{0,40}\\b(rise[sn]?|rises|fall(s|ing)?|fell|drop(s|ped)?|slide[sd]?|slips?|jump(s|ed)?|surge[sd]?|plunge[sd]?|tumble[sd]?|rall(y|ies|ied)|gain(s|ed)?|edge[sd]? (up|down|higher|lower)|rebound(s|ed)?)\\b|\\b(rise[sn]?|rises|fall(s|ing)?|fell|drop(s|ped)?|slide[sd]?|jump(s|ed)?|surge[sd]?|plunge[sd]?|tumble[sd]?)\\b.{0,12}\\d+(\\.\\d+)?\\s?%/i, 'headline'],\n];\n// earliest mention wins (headline first, then excerpt): \"fell after Nvidia cut its stake ... lawsuit\" -> deal, not legal\nconst eventType = a => {\n  for (const src of [a.headline, a.excerpt]) {\n    let best = null, pos = Infinity;\n    for (const [t, re, only] of EVENT_TYPES) { if (only === 'headline' && src !== a.headline) continue; const m = src.match(re); if (m && m.index < pos) { pos = m.index; best = t; } }\n    if (best) return best;\n  }\n  return null;\n};\nconst PREVIEW = /\\b(ahead of|preview|what to expect|set to report|due to report|before (the )?(release|data|earnings)|awaits?|awaiting)\\b/i;\n\nconst pool = articles.filter(a => !a.role && a.language === 'en'); // groupable: distinct, English, in range, not roundup\n// non-English articles without EN counterpart are grouped too (their tokens rarely match; they will mostly stay singletons)\nfor (const a of articles) if (!a.role && a.language !== 'en') pool.push(a);\n\nconst df = {};\nfor (const a of pool) {\n  a._tokens = [...tok(a.headline), ...tok(a.headline), ...tok(a.excerpt), ...tok(a.text_content.slice(0, 600))];\n  for (const w of new Set(a._tokens)) df[w] = (df[w] || 0) + 1;\n  a._ents = articleEntities(a);\n  a._etype = eventType(a);\n  for (const tk of a.tickers) a._ents.add(String(tk).toLowerCase());\n  a._phase = PREVIEW.test(a.headline) ? 'preview' : 'event';\n}\nconst N = pool.length;\nfor (const a of pool) {\n  const tf = {};\n  for (const w of a._tokens) tf[w] = (tf[w] || 0) + 1;\n  let norm = 0; const vec = {};\n  for (const [w, c] of Object.entries(tf)) { if (df[w] < 2) continue; const v = (1 + Math.log(c)) * Math.log(N / df[w]); vec[w] = v; norm += v * v; }\n  norm = Math.sqrt(norm) || 1;\n  for (const w in vec) vec[w] /= norm;\n  a._vec = vec;\n}\nconst cos = (x, y) => { let s = 0; const [a, b] = Object.keys(x).length < Object.keys(y).length ? [x, y] : [y, x]; for (const w in a) if (b[w]) s += a[w] * b[w]; return s; };\nconst sharedEnts = (a, b) => { let n = 0; for (const e of a._ents) if (b._ents.has(e)) n++; return n; };\nconst shareEnt = (a, b) => sharedEnts(a, b) > 0;\n\n// ---------------------------------------------------------------------------\n// 6. pairwise similarity with blocking (time + shared entity)\n// ---------------------------------------------------------------------------\npool.sort((a, b) => a.t - b.t);\nconst sim = new Map(); // key \"i|j\"\nconst ambiguous = [];\nlet pairs_compared = 0;\nfor (let i = 0; i < pool.length; i++) {\n  for (let j = i + 1; j < pool.length; j++) {\n    const a = pool[i], b = pool[j];\n    if (b.t - a.t > CFG.PAIR_MAX_HOURS * 3600000) break;\n    if (!shareEnt(a, b)) continue;\n    pairs_compared++;\n    let s = cos(a._vec, b._vec) + Math.min(CFG.ENTITY_BONUS_CAP, CFG.ENTITY_BONUS * (sharedEnts(a, b) - 1));\n    if (a._phase !== b._phase) s *= 0.5; // a preview is not the result\n    if (a._etype && b._etype) s = a._etype === b._etype ? s + CFG.EVENT_TYPE_BONUS : s * CFG.EVENT_TYPE_PENALTY;\n    if (s > 0) sim.set(i + '|' + j, s);\n    if (s >= CFG.AMBIGUOUS_LOW && s < CFG.MERGE_THRESHOLD && a.feed !== b.feed) ambiguous.push({ a: a.article_id, b: b.article_id, score: Number(s.toFixed(3)) });\n  }\n}\nconst S = (i, j) => sim.get(i < j ? i + '|' + j : j + '|' + i) || 0;\n\n// ---------------------------------------------------------------------------\n// 7. average-linkage agglomeration (resists bridge articles), with span cap\n// ---------------------------------------------------------------------------\nlet clusters = pool.map((a, i) => ({ members: [i], tmin: a.t, tmax: a.t }));\nconst avgLink = (c1, c2) => { let s = 0; for (const i of c1.members) for (const j of c2.members) s += S(i, j); return s / (c1.members.length * c2.members.length); };\nconst owner = pool.map((_, i) => i); // index into clusters\nlet merged = true;\nwhile (merged) {\n  merged = false;\n  // candidate cluster pairs = those connected by at least one similar pair\n  const cand = new Map();\n  for (const [k, s] of sim) {\n    if (s < CFG.MERGE_THRESHOLD * 0.5) continue;\n    const [i, j] = k.split('|').map(Number);\n    const ci = owner[i], cj = owner[j];\n    if (ci === cj) continue;\n    const key = ci < cj ? ci + '|' + cj : cj + '|' + ci;\n    if (!cand.has(key)) cand.set(key, [Math.min(ci, cj), Math.max(ci, cj)]);\n  }\n  let best = null, bestS = CFG.MERGE_THRESHOLD;\n  for (const [ci, cj] of cand.values()) {\n    const A = clusters[ci], B = clusters[cj];\n    if (Math.max(A.tmax, B.tmax) - Math.min(A.tmin, B.tmin) > CFG.CLUSTER_MAX_SPAN_HOURS * 3600000) continue;\n    const s = avgLink(A, B);\n    if (s >= bestS) { bestS = s; best = [ci, cj]; }\n  }\n  if (best) {\n    const [ci, cj] = best;\n    const A = clusters[ci], B = clusters[cj];\n    A.members.push(...B.members); A.tmin = Math.min(A.tmin, B.tmin); A.tmax = Math.max(A.tmax, B.tmax);\n    for (const m of B.members) owner[m] = ci;\n    clusters[cj] = { members: [], tmin: 0, tmax: 0 };\n    merged = true;\n  }\n}\nclusters = clusters.filter(c => c.members.length);\n// core entities: named in at least half of a cluster's articles\nconst coreOf = c => { const n = {}; for (const i of c.members) for (const e of pool[i]._ents) n[e] = (n[e] || 0) + 1; return new Set(Object.keys(n).filter(e => n[e] * 2 >= c.members.length)); };\nconst shareCore = (A, B) => { const a = coreOf(A), b = coreOf(B); for (const e of a) if (b.has(e)) return true; return false; };\n// pass 2: two established clusters (>= 2 articles each) describing the same event from different angles\nlet merged2 = true, pass2_merges = 0;\nwhile (merged2) {\n  merged2 = false;\n  let best = null, bestS = CFG.MERGE_THRESHOLD_PASS2;\n  for (let x = 0; x < clusters.length; x++) for (let y = x + 1; y < clusters.length; y++) {\n    const A = clusters[x], B = clusters[y];\n    if (A.members.length < 2 || B.members.length < 2) continue;\n    if (!shareCore(A, B)) continue; // both clusters must be ABOUT the same named thing\n    if (Math.max(A.tmax, B.tmax) - Math.min(A.tmin, B.tmin) > CFG.CLUSTER_MAX_SPAN_HOURS * 3600000) continue;\n    const s2 = avgLink(A, B);\n    if (s2 >= bestS) { bestS = s2; best = [x, y]; }\n  }\n  if (best) {\n    const [x, y] = best; const A = clusters[x], B = clusters[y];\n    A.members.push(...B.members); A.tmin = Math.min(A.tmin, B.tmin); A.tmax = Math.max(A.tmax, B.tmax);\n    clusters.splice(y, 1); merged2 = true; pass2_merges++;\n  }\n}\n\n// ---------------------------------------------------------------------------\n// 8. build story records (+ attach translations, copies, roundups as singletons)\n// ---------------------------------------------------------------------------\nconst byId = Object.fromEntries(articles.map(a => [a.article_id, a]));\nconst FEED_WEIGHT = { actionforex: 1.0, invezz_en: 1.0, ibtimes_uk: 0.9, zacks: 0.7 };\nconst briefT = Date.parse(CFG.BRIEFING_DATE + 'T06:00:00Z');\nconst stories = [];\nfunction makeStory(members, kind) {\n  members.sort((a, b) => a.t - b.t);\n  const outlets = [...new Set(members.map(m => outletFamily(m.publication)))];\n  // representative: longest text from the outlet with most weight, earliest on ties\n  const rep = [...members].sort((a, b) => (FEED_WEIGHT[b.feed] || 0.5) - (FEED_WEIGHT[a.feed] || 0.5) || b.text_len - a.text_len)[0];\n  const ents = {};\n  for (const m of members) for (const e of (m._ents || [])) ents[e] = (ents[e] || 0) + 1;\n  const topEnts = Object.entries(ents).sort((a, b) => b[1] - a[1]).slice(0, 6).map(e => e[0]);\n  const ageH = Math.max(0, (briefT - members[members.length - 1].t) / 3600000);\n  const score = kind === 'roundup' ? 0 : Number((outlets.length * 1.0 + Math.log2(1 + members.length) * 0.5 + (FEED_WEIGHT[rep.feed] || 0.5) - Math.min(ageH, 96) / 48).toFixed(3));\n  const story_id = 'sty_' + cyrb53(members.map(m => m.article_id).sort().join('|'));\n  for (const m of members) { m.story_id = story_id; if (!m.role) m.role = m === rep ? 'anchor' : 'member'; }\n  stories.push({\n    story_id,\n    kind,                                        // event | roundup\n    title: rep.headline,                         // internal label only\n    first_seen: members[0].published_at,\n    last_seen: members[members.length - 1].published_at,\n    outlets,\n    independent_outlet_count: outlets.length,    // translations are NOT counted\n    article_ids: members.map(m => m.article_id),\n    representative_article_id: rep.article_id,\n    entities: topEnts,\n    provider_categories: [...new Set(members.flatMap(m => m.provider_categories))],\n    phase: members.every(m => m._phase === 'preview') ? 'preview' : 'event',\n    editorial_score: score,\n    storyline_id: null,\n  });\n}\nfor (const c of clusters) makeStory(c.members.map(i => pool[i]), 'event');\nfor (const a of articles) if (a.role === 'roundup') makeStory([a], 'roundup');\n// translations / copies inherit the story of their original\nfor (const a of articles) {\n  const orig = a.translation_of ? byId[a.translation_of] : a.copy_of ? byId[a.copy_of] : null;\n  if (orig && orig.story_id) a.story_id = orig.story_id;\n}\nconst sById = Object.fromEntries(stories.map(s => [s.story_id, s]));\nfor (const a of articles) if ((a.role === 'translation' || a.role === 'exact_copy') && a.story_id) {\n  const s = sById[a.story_id];\n  (s.translation_ids = s.translation_ids || []).push(a.article_id);\n}\n\n// ---------------------------------------------------------------------------\n// 9. storylines: event clusters on different days that share their top entity\n// ---------------------------------------------------------------------------\nconst multi = stories.filter(s => s.kind === 'event' && s.entities.length);\nlet lineNo = 0;\nfor (const s of multi) {\n  if (s.storyline_id) continue;\n  const key = s.entities[0];\n  const line = multi.filter(o => o.entities.slice(0, 2).includes(key));\n  if (line.length > 1) { const id = 'line_' + key.toLowerCase().replace(/[^a-z0-9]+/g, '_'); for (const o of line) if (!o.storyline_id) o.storyline_id = id; lineNo++; }\n}\n\n// ---------------------------------------------------------------------------\n// 10. output\n// ---------------------------------------------------------------------------\nstories.sort((a, b) => b.editorial_score - a.editorial_score);\nconst pub = a => {\n  const o = { article_id: a.article_id, feed: a.feed, publication: a.publication, permalink: a.permalink, language: a.language,\n    published_at: a.published_at, headline: a.headline, excerpt: a.excerpt, author: a.author, provider_categories: a.provider_categories,\n    content_hash: a.content_hash, role: a.role, translation_of: a.translation_of, copy_of: a.copy_of, story_id: a.story_id, text_len: a.text_len };\n  if (CFG.KEEP_TEXT_FOR_TABLE && a.role !== 'archive' && a.role !== 'translation' && a.role !== 'exact_copy') o.text_content = a.text_content; // internal only\n  return o;\n};\nconst roles = {};\nfor (const a of articles) roles[a.role || 'none'] = (roles[a.role || 'none'] || 0) + 1;\nconst eventStories = stories.filter(s => s.kind === 'event');\nconst report = {\n  settings: CFG,\n  files: ($input.first() && $input.first().json.__files) || null,\n  input_rows: $input.all().length, articles: articles.length, skipped_no_id, skipped_dup_id,\n  roles,\n  translations_linked, translations_unmatched,\n  groupable_articles: pool.length, pairs_compared,\n  stories: eventStories.length,\n  multi_article_stories: eventStories.filter(s => s.article_ids.length > 1).length,\n  multi_outlet_stories: eventStories.filter(s => s.independent_outlet_count > 1).length,\n  largest_story: Math.max(...eventStories.map(s => s.article_ids.length)),\n  storylines: [...new Set(stories.map(s => s.storyline_id).filter(Boolean))].length,\n  pass2_merges,\n  ambiguous_pairs_for_llm: ambiguous.length,\n  ambiguous_pairs_sample: ambiguous.slice(0, 20),\n  llm_calls_used: 0,\n};\n\nreturn [\n  ...stories.map(s => ({ json: { _type: 'story', ...s } })),\n  ...articles.map(a => ({ json: { _type: 'article', ...pub(a) } })),\n  { json: { _type: 'report', ...report } },\n];\n"
+      },
+      "id": "ffa8b311-5619-480c-aa3c-735914c529eb"
+    },
+    {
+      "name": "Prepare cluster checks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// NODE: \"Prepare cluster checks\"   (Code node, Run Once for All Items)\n// Escalation step: only clusters where a wrong merge would matter (>= 2 outlets\n// or >= 3 articles) go to a small model, which may SPLIT them. It never merges.\n// Output: one OpenAI request per cluster, or one { skip: true } item.\n// ============================================================================\nconst CHECK = {\n  USE_LLM_CLUSTER_CHECK: false,   // true = needs the OpenAI credential on \"OpenAI cluster check\"\n  OPENAI_MODEL: 'gpt-5-mini',\n  REASONING_EFFORT: 'low',\n  MIN_OUTLETS: 2,\n  MIN_ARTICLES: 3,\n  MAX_ARTICLES_PER_CHECK: 15,     // larger clusters: first 15 by time are checked, the rest keep the majority group\n};\n\nconst all = $input.all().map(i => i.json);\nconst stories = all.filter(x => x._type === 'story' && x.kind === 'event');\nconst arts = Object.fromEntries(all.filter(x => x._type === 'article').map(a => [a.article_id, a]));\nconst toCheck = stories.filter(s => s.independent_outlet_count >= CHECK.MIN_OUTLETS || s.article_ids.length >= CHECK.MIN_ARTICLES);\n\nif (!CHECK.USE_LLM_CLUSTER_CHECK || !toCheck.length) {\n  return [{ json: { skip: true, reason: CHECK.USE_LLM_CLUSTER_CHECK ? 'nothing to check' : 'LLM cluster check disabled', candidates: toCheck.length, config: CHECK } }];\n}\n\nconst SYSTEM = `You check groups of news articles that a keyword algorithm put together. Decide which articles report the SAME news event: the same actors doing the same thing at the same time (for example one data release, one lawsuit filing, one resignation, one IPO pricing).\n\nSplit them when they are different events, even if they share a company, person or topic:\n- a market reaction story (stocks/currency moving afterwards) is separate from the event that moved it\n- a preview (\"ahead of\", \"what to expect\") is separate from the result\n- a later development (new statement, new decision, new filing) is a separate event\n- opinion, analysis or \"stocks to buy\" pieces belong with the event only if their main subject is that event\n\nUse only the headline, outlet, time and excerpt given. Return every article number exactly once.`;\n\nconst SCHEMA = {\n  type: 'object', additionalProperties: false, required: ['groups'],\n  properties: {\n    groups: {\n      type: 'array',\n      items: {\n        type: 'object', additionalProperties: false, required: ['article_numbers', 'event_label', 'confidence'],\n        properties: {\n          article_numbers: { type: 'array', items: { type: 'integer' } },\n          event_label: { type: 'string' },\n          confidence: { type: 'string', enum: ['high', 'medium', 'low'] },\n        },\n      },\n    },\n  },\n};\n\nreturn toCheck.map(s => {\n  const ids = s.article_ids.slice(0, CHECK.MAX_ARTICLES_PER_CHECK);\n  const lines = ids.map((id, k) => {\n    const a = arts[id];\n    return `${k + 1}. [${a.publication} | ${a.published_at.slice(0, 16).replace('T', ' ')} UTC] ${a.headline} — ${(a.excerpt || '').slice(0, 240)}`;\n  });\n  const body = {\n    model: CHECK.OPENAI_MODEL,\n    messages: [{ role: 'system', content: SYSTEM }, { role: 'user', content: lines.join('\\n') }],\n    response_format: { type: 'json_schema', json_schema: { name: 'cluster_check', strict: true, schema: SCHEMA } },\n    max_completion_tokens: 2000,\n  };\n  if (/^(gpt-5|o\\d)/.test(CHECK.OPENAI_MODEL) && CHECK.REASONING_EFFORT) body.reasoning_effort = CHECK.REASONING_EFFORT;\n  return { json: { story_id: s.story_id, checked_ids: ids, openai_body: body, config: CHECK } };\n});\n"
+      },
+      "id": "a1325a09-bec0-4d18-9d16-cf7e23c8b69d"
+    },
+    {
+      "name": "LLM check skipped?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "5d6af1c2-8c7c-445d-a992-160c7198614f",
+              "leftValue": "={{ $json.skip === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1ae27e0a-9d86-44a1-b7a7-5d0cfaeade85"
+    },
+    {
+      "name": "OpenAI cluster check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.openai_body) }}",
+        "options": {
+          "timeout": 120000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "5269c23c-8888-4516-8b9d-d3459ae3f467"
+    },
+    {
+      "name": "Apply checks & build rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// NODE: \"Apply checks & build rows\"   (Code node, Run Once for All Items)\n// Input: OpenAI cluster-check responses (or the single { skip } item).\n// Splits clusters the model separated, then emits flat rows for the Data Tables:\n//   _type 'story_row' -> lb_stories, _type 'article_row' -> lb_articles, plus one 'report'.\n// ============================================================================\nconst grouped = $('Normalize, link & group').all().map(i => i.json);\nconst reqs = $('Prepare cluster checks').all().map(i => i.json);\nconst resps = reqs[0] && reqs[0].skip ? [] : $input.all().map(i => i.json);\n\nconst stories = grouped.filter(x => x._type === 'story');\nconst articles = grouped.filter(x => x._type === 'article');\nconst groupReport = grouped.find(x => x._type === 'report') || {};\nconst A = Object.fromEntries(articles.map(a => [a.article_id, a]));\n\nfunction cyrb53(str, seed = 0) {\n  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;\n  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }\n  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);\n  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);\n  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0');\n}\nconst outletFamily = pub => pub.replace(/ - (German|Dutch)$/, '');\nconst FEED_WEIGHT = { actionforex: 1.0, invezz_en: 1.0, ibtimes_uk: 0.9, zacks: 0.7 };\nconst BRIEF_T = Date.parse((groupReport.settings ? groupReport.settings.BRIEFING_DATE : '2026-11-19') + 'T06:00:00Z');\n\nfunction rebuild(parent, ids, status, label) {\n  const members = ids.map(id => A[id]).sort((a, b) => Date.parse(a.published_at) - Date.parse(b.published_at));\n  const outlets = [...new Set(members.map(m => outletFamily(m.publication)))];\n  const rep = [...members].sort((a, b) => (FEED_WEIGHT[b.feed] || 0.5) - (FEED_WEIGHT[a.feed] || 0.5) || b.text_len - a.text_len)[0];\n  const ageH = Math.max(0, (BRIEF_T - Date.parse(members[members.length - 1].published_at)) / 3600000);\n  const story_id = status === 'llm_split' ? 'sty_' + cyrb53(ids.slice().sort().join('|')) : parent.story_id;\n  return {\n    ...parent,\n    story_id,\n    title: rep.headline,\n    first_seen: members[0].published_at,\n    last_seen: members[members.length - 1].published_at,\n    outlets,\n    independent_outlet_count: outlets.length,\n    article_ids: members.map(m => m.article_id),\n    representative_article_id: rep.article_id,\n    editorial_score: Number((outlets.length + Math.log2(1 + members.length) * 0.5 + (FEED_WEIGHT[rep.feed] || 0.5) - Math.min(ageH, 96) / 48).toFixed(3)),\n    check_status: status,\n    check_label: label || null,\n    split_from: status === 'llm_split' ? parent.story_id : null,\n  };\n}\n\n// ---- apply model decisions -------------------------------------------------------\nconst usage = [];\nconst checks = {};\nresps.forEach((r, k) => {\n  const req = reqs[k];\n  const u = r.usage || {};\n  usage.push({ stage: 'cluster_check', story_id: req.story_id, model: r.model, input_tokens: u.prompt_tokens || 0,\n    cached_input_tokens: (u.prompt_tokens_details && u.prompt_tokens_details.cached_tokens) || 0, output_tokens: u.completion_tokens || 0 });\n  let parsed = null;\n  try { parsed = JSON.parse(r.choices[0].message.content); } catch (e) { /* invalid -> keep */ }\n  checks[req.story_id] = { parsed, checked_ids: req.checked_ids };\n});\n\nconst finalStories = [];\nlet confirmed = 0, split = 0, invalid = 0;\nfor (const s of stories) {\n  const c = checks[s.story_id];\n  if (!c) { finalStories.push({ ...s, check_status: s.kind === 'roundup' ? 'roundup' : 'rules_only', check_label: null, split_from: null }); continue; }\n  const n = c.checked_ids.length;\n  const groups = (c.parsed && Array.isArray(c.parsed.groups)) ? c.parsed.groups.map(g => [...new Set(g.article_numbers)].filter(x => x >= 1 && x <= n)) : null;\n  const flat = groups ? groups.flat() : [];\n  const valid = groups && flat.length === n && new Set(flat).size === n;\n  if (!valid) { invalid++; finalStories.push({ ...s, check_status: 'llm_invalid_kept', check_label: null, split_from: null }); continue; }\n  if (groups.length === 1) { confirmed++; finalStories.push({ ...s, check_status: 'llm_confirmed', check_label: c.parsed.groups[0].event_label, split_from: null }); continue; }\n  split++;\n  // unchecked tail (clusters > MAX_ARTICLES_PER_CHECK) joins the largest group\n  const tail = s.article_ids.slice(n);\n  const order = groups.map((g, gi) => gi).sort((x, y) => groups[y].length - groups[x].length);\n  groups.forEach((g, gi) => {\n    const ids = g.map(x => c.checked_ids[x - 1]).concat(gi === order[0] ? tail : []);\n    finalStories.push(rebuild(s, ids, 'llm_split', c.parsed.groups[gi].event_label));\n  });\n}\n\n// story ids may have changed: point articles (and their translations) at the final story\nconst storyOf = {};\nfor (const s of finalStories) for (const id of s.article_ids) storyOf[id] = s.story_id;\nfor (const a of articles) {\n  const base = a.translation_of || a.copy_of;\n  a.story_id = storyOf[a.article_id] || (base && storyOf[base]) || a.story_id || null;\n}\nfor (const s of finalStories) s.translation_ids = articles.filter(a => (a.role === 'translation' || a.role === 'exact_copy') && a.story_id === s.story_id).map(a => a.article_id);\nfinalStories.sort((a, b) => b.editorial_score - a.editorial_score);\n\n// ---- flat rows (Data Tables accept no arrays/objects -> JSON strings) --------------\nconst J = v => JSON.stringify(v == null ? [] : v);\nconst storyRows = finalStories.map(s => ({ json: { _type: 'story_row',\n  story_id: s.story_id, kind: s.kind, title: s.title, first_seen: s.first_seen, last_seen: s.last_seen,\n  outlets: J(s.outlets), independent_outlet_count: s.independent_outlet_count, article_count: s.article_ids.length,\n  article_ids: J(s.article_ids), translation_ids: J(s.translation_ids), representative_article_id: s.representative_article_id,\n  entities: J(s.entities), provider_categories: J(s.provider_categories), phase: s.phase, editorial_score: s.editorial_score,\n  storyline_id: s.storyline_id || null, check_status: s.check_status, check_label: s.check_label, split_from: s.split_from } }));\nconst articleRows = articles.filter(a => a.role !== 'archive').map(a => ({ json: { _type: 'article_row',\n  article_id: a.article_id, story_id: a.story_id, role: a.role, feed: a.feed, publication: a.publication, permalink: a.permalink,\n  language: a.language, published_at: a.published_at, headline: a.headline, excerpt: a.excerpt || null, author: a.author,\n  provider_categories: J(a.provider_categories), content_hash: a.content_hash, translation_of: a.translation_of, copy_of: a.copy_of,\n  text_len: a.text_len, text_content: a.text_content || null } }));\n\nconst price = { input_per_1m: 0.25, cached_input_per_1m: 0.025, output_per_1m: 2.0 }; // gpt-5-mini list price, VERIFY\nconst tokIn = usage.reduce((x, r) => x + r.input_tokens, 0), tokC = usage.reduce((x, r) => x + r.cached_input_tokens, 0), tokOut = usage.reduce((x, r) => x + r.output_tokens, 0);\nconst report = { _type: 'report',\n  grouping: { ...groupReport, _type: undefined, ambiguous_pairs_sample: undefined },\n  cluster_check: { mode: resps.length ? 'llm' : 'rules_only', checked: resps.length, confirmed, split, invalid,\n    input_tokens: tokIn, cached_input_tokens: tokC, output_tokens: tokOut,\n    est_cost_usd: Number((((tokIn - tokC) * price.input_per_1m + tokC * price.cached_input_per_1m + tokOut * price.output_per_1m) / 1e6).toFixed(5)) },\n  final_stories: finalStories.filter(s => s.kind === 'event').length,\n  final_multi_outlet_stories: finalStories.filter(s => s.kind === 'event' && s.independent_outlet_count > 1).length,\n  rows: { stories: storyRows.length, articles: articleRows.length },\n  usage_rows: usage,\n};\nreturn [...storyRows, ...articleRows, { json: report }];\n"
+      },
+      "id": "0b93778c-4493-4611-9ad7-9977d9716741"
+    },
+    {
+      "name": "Create lb_stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "lb_stories",
+        "columns": {
+          "column": [
+            {
+              "name": "story_id",
+              "type": "string"
+            },
+            {
+              "name": "kind",
+              "type": "string"
+            },
+            {
+              "name": "title",
+              "type": "string"
+            },
+            {
+              "name": "first_seen",
+              "type": "string"
+            },
+            {
+              "name": "last_seen",
+              "type": "string"
+            },
+            {
+              "name": "outlets",
+              "type": "string"
+            },
+            {
+              "name": "independent_outlet_count",
+              "type": "number"
+            },
+            {
+              "name": "article_count",
+              "type": "number"
+            },
+            {
+              "name": "article_ids",
+              "type": "string"
+            },
+            {
+              "name": "translation_ids",
+              "type": "string"
+            },
+            {
+              "name": "representative_article_id",
+              "type": "string"
+            },
+            {
+              "name": "entities",
+              "type": "string"
+            },
+            {
+              "name": "provider_categories",
+              "type": "string"
+            },
+            {
+              "name": "phase",
+              "type": "string"
+            },
+            {
+              "name": "editorial_score",
+              "type": "number"
+            },
+            {
+              "name": "storyline_id",
+              "type": "string"
+            },
+            {
+              "name": "check_status",
+              "type": "string"
+            },
+            {
+              "name": "check_label",
+              "type": "string"
+            },
+            {
+              "name": "split_from",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "196cdbf1-3dd6-4915-8caa-6441223c4dc2"
+    },
+    {
+      "name": "Create lb_articles",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "resource": "table",
+        "operation": "create",
+        "tableName": "lb_articles",
+        "columns": {
+          "column": [
+            {
+              "name": "article_id",
+              "type": "string"
+            },
+            {
+              "name": "story_id",
+              "type": "string"
+            },
+            {
+              "name": "role",
+              "type": "string"
+            },
+            {
+              "name": "feed",
+              "type": "string"
+            },
+            {
+              "name": "publication",
+              "type": "string"
+            },
+            {
+              "name": "permalink",
+              "type": "string"
+            },
+            {
+              "name": "language",
+              "type": "string"
+            },
+            {
+              "name": "published_at",
+              "type": "string"
+            },
+            {
+              "name": "headline",
+              "type": "string"
+            },
+            {
+              "name": "excerpt",
+              "type": "string"
+            },
+            {
+              "name": "author",
+              "type": "string"
+            },
+            {
+              "name": "provider_categories",
+              "type": "string"
+            },
+            {
+              "name": "content_hash",
+              "type": "string"
+            },
+            {
+              "name": "translation_of",
+              "type": "string"
+            },
+            {
+              "name": "copy_of",
+              "type": "string"
+            },
+            {
+              "name": "text_len",
+              "type": "number"
+            },
+            {
+              "name": "text_content",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        }
+      },
+      "id": "48ef6769-0fa7-432f-8a1b-875caca7b2f5"
+    },
+    {
+      "name": "Clear lb_stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_stories"
+        }
+      },
+      "id": "4ac7aa25-c58d-4832-81ff-3cfd00306249"
+    },
+    {
+      "name": "Clear lb_articles",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2200,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_articles"
+        }
+      },
+      "id": "390db9e4-f5fd-419a-9c42-a1dc90fc62db"
+    },
+    {
+      "name": "Story rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Apply checks & build rows').all().filter(i => i.json._type === 'story_row').map(i => { const { _type, ...row } = i.json; return { json: row }; });"
+      },
+      "id": "dbd04cb8-e084-4abf-86e0-a88846a2cb6c"
+    },
+    {
+      "name": "Insert lb_stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2640,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_stories"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "id": "336fb3cc-7d79-4b2b-9508-f79ec902eb9e"
+    },
+    {
+      "name": "Article rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Apply checks & build rows').all().filter(i => i.json._type === 'article_row').map(i => { const { _type, ...row } = i.json; return { json: row }; });"
+      },
+      "id": "5bac9142-a30c-4cbc-a3c1-39f55a0f11e7"
+    },
+    {
+      "name": "Insert lb_articles",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3080,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_articles"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "id": "2fe5171f-2d37-402f-ba5c-dfcfbd3c479f"
+    },
+    {
+      "name": "Run report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const r = $('Apply checks & build rows').all().find(i => i.json._type === 'report').json;\nreturn [{ json: { ...r, inserted: { stories: $('Insert lb_stories').all().map(i => i.json), articles: $('Insert lb_articles').all().map(i => i.json) } } }];"
+      },
+      "id": "cb4c8fee-50dd-451d-b8d3-f5b30637f14d"
+    },
+    {
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -40
+      ],
+      "parameters": {
+        "width": 1300,
+        "height": 230,
+        "content": "## Workflow A - load & group the Newstex snapshot (no LLM by default)\n1. Open the form URL (Form Trigger -> Production/Test URL) and upload all six .jsonl files at once.\n2. Rules only: normalize, exact copies, DE/NL translations (same author, nearest EN within 15 min), roundups, TF-IDF + named-entity + event-type grouping, average-link with 36 h span cap.\n3. Optional escalation: set `USE_LLM_CLUSTER_CHECK: true` in *Prepare cluster checks* and select the OpenAI credential. A small model may only SPLIT clusters (about 40 calls, cents).\n4. Results replace the rows in Data Tables `lb_stories` and `lb_articles` (created automatically). *Run report* shows counts and cost.\nWorkflow setting \"binary mode\" must stay **separate**."
+      },
+      "id": "d73cc127-7678-4ba6-913f-dc249043d7ee"
+    }
+  ],
+  "connections": {
+    "Upload JSONL files": {
+      "main": [
+        [
+          {
+            "node": "Parse JSONL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSONL": {
+      "main": [
+        [
+          {
+            "node": "Normalize, link & group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize, link & group": {
+      "main": [
+        [
+          {
+            "node": "Prepare cluster checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare cluster checks": {
+      "main": [
+        [
+          {
+            "node": "LLM check skipped?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM check skipped?": {
+      "main": [
+        [
+          {
+            "node": "Apply checks & build rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI cluster check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI cluster check": {
+      "main": [
+        [
+          {
+            "node": "Apply checks & build rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply checks & build rows": {
+      "main": [
+        [
+          {
+            "node": "Create lb_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create lb_stories": {
+      "main": [
+        [
+          {
+            "node": "Create lb_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create lb_articles": {
+      "main": [
+        [
+          {
+            "node": "Clear lb_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear lb_stories": {
+      "main": [
+        [
+          {
+            "node": "Clear lb_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear lb_articles": {
+      "main": [
+        [
+          {
+            "node": "Story rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story rows": {
+      "main": [
+        [
+          {
+            "node": "Insert lb_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert lb_stories": {
+      "main": [
+        [
+          {
+            "node": "Article rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article rows": {
+      "main": [
+        [
+          {
+            "node": "Insert lb_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert lb_articles": {
+      "main": [
+        [
+          {
+            "node": "Run report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}

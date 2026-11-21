@@ -1,0 +1,286 @@
+{
+  "name": "Liquid Briefing - E add archive",
+  "nodes": [
+    {
+      "name": "Upload zacks.jsonl",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "5e5c7888-d0c8-4304-b084-25e1fa03c4f1",
+      "parameters": {
+        "formTitle": "Liquid Briefing - add the archive",
+        "formDescription": "Upload zacks.jsonl (or all six files). Only articles older than 12 Nov are added; nothing existing is changed.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "jsonl_files",
+              "fieldType": "file",
+              "multipleFiles": true,
+              "acceptFileTypes": ".jsonl",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "504deeed-a790-4b6b-afae-17e04d39d8d0"
+    },
+    {
+      "name": "Parse JSONL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// NODE: \"Parse JSONL\"   (Code node, Run Once for All Items)\n// Input: items with binary files (Form upload, or \"Read Files from Disk\").\n// Output: one item per article row. Rows are passed through unchanged.\n// ============================================================================\nconst out = [];\nconst files = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const bin = items[i].binary || {};\n  for (const key of Object.keys(bin)) {\n    const name = bin[key].fileName || key;\n    if (!/\\.jsonl?$/i.test(name)) { files.push({ file: name, skipped: 'not .jsonl' }); continue; }\n    const buf = await this.helpers.getBinaryDataBuffer(i, key);\n    const lines = buf.toString('utf8').split(/\\r?\\n/);\n    let ok = 0, bad = 0;\n    for (const line of lines) {\n      if (!line.trim()) continue;\n      try { out.push({ json: JSON.parse(line) }); ok++; } catch (e) { bad++; }\n    }\n    files.push({ file: name, rows: ok, parse_errors: bad });\n  }\n}\nif (!out.length) throw new Error('No JSONL rows found. Upload the .jsonl files (workflow setting \"binary mode\" must be \"separate\"). Files seen: ' + JSON.stringify(files));\n// file summary travels on the first row (removed again in the next node)\nout[0].json.__files = files;\nreturn out;\n"
+      },
+      "id": "69c46800-c53f-43e8-a513-d6a27cef5d8c"
+    },
+    {
+      "name": "Existing stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        440,
+        300
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_stories"
+        },
+        "returnAll": true
+      },
+      "id": "2cf26176-7c30-4283-be98-02343c4a4f78"
+    },
+    {
+      "name": "Archive rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// WORKFLOW E — NODE: \"Archive rows\"   (Code node, Run Once for All Items)\n// Adds the articles OLDER than Workflow A's grouping window (Zacks, 28 Jul - 11 Nov) to lb_articles,\n// one single-article story each (phase 'archive'), so a listener's question can find them by search.\n// No LLM, no grouping. Run once; it stops if archive rows already exist.\n// ============================================================================\nconst CFG = { GROUP_FROM: '2026-11-12T00:00:00Z' };\nif ($('Existing stories').all().some(i => i.json.phase === 'archive')) throw new Error('Archive rows already exist in lb_stories - nothing to do (delete rows with phase = archive first to re-import).');\nconst get = (o, p) => p.split('.').reduce((x, k) => (x == null ? undefined : x[k]), o);\nconst clean = s => String(s || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\nfunction cyrb53(str, seed = 0) {\n  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;\n  for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }\n  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);\n  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);\n  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0');\n}\nconst FEED_BY_PUB = { 'Invezz': 'invezz_en', 'Invezz - German': 'invezz_de', 'Invezz - Dutch': 'invezz_nl', 'ActionForex': 'actionforex', 'International Business Times UK': 'ibtimes_uk', 'Zacks Investment Research': 'zacks' };\n\nconst seen = new Set();\nconst articles = [];\nlet skipped_no_id = 0, skipped_dup_id = 0;\nfor (const it of $('Parse JSONL').all()) {\n  const r = it.json;\n  const id = r['$id'];\n  if (!id) { skipped_no_id++; continue; }\n  if (seen.has(id)) { skipped_dup_id++; continue; }\n  seen.add(id);\n  const text = clean(r.text_content);\n  const pub = get(r, 'publication.name') || 'Unknown';\n  articles.push({\n    article_id: id,\n    feed: FEED_BY_PUB[pub] || pub,\n    publication: pub,\n    permalink: r.permalink || null,\n    language: (r.language || 'en').slice(0, 2),\n    published_at: r.date,\n    t: Date.parse(r.date),\n    headline: clean(r.headline),\n    excerpt: clean(r.excerpt),\n    author: r.source || null,\n    provider_categories: Array.isArray(r.provider_categories) ? r.provider_categories : [],\n    tickers: Array.isArray(r.company_tickers) ? r.company_tickers : [],\n    content_hash: 'cyrb53:' + cyrb53(text.toLowerCase()),\n    text_len: text.length,\n    text_content: text,\n    role: null,            // anchor | member | translation | exact_copy | roundup | archive\n    translation_of: null,\n    copy_of: null,\n    story_id: null,\n  });\n}\n\nconst ROUNDUP = /\\b(evening digest|morning digest|digest:|\\d+ things to know|things to know before|stock market news for|week ahead|weekly recap|market wrap|avondoverzicht|ochtendoverzicht|abend-report|morgen-report|dinge vor|dingen om te weten)\\b/i;\nconst fromT = Date.parse(CFG.GROUP_FROM);\nconst J = v => JSON.stringify(v == null ? [] : v);\nconst seenHash = new Set();\nconst out = [];\nlet copies = 0;\nfor (const a of articles.filter(x => x.t < fromT).sort((x, y) => x.t - y.t)) {\n  if (a.text_len >= 200 && seenHash.has(a.content_hash)) { copies++; continue; }\n  seenHash.add(a.content_hash);\n  const story_id = 'sty_' + cyrb53('archive|' + a.article_id);\n  const roundup = ROUNDUP.test(a.headline);\n  out.push({ json: { _type: 'story_row', story_id, kind: roundup ? 'roundup' : 'event', title: a.headline, first_seen: a.published_at, last_seen: a.published_at,\n    outlets: J([a.publication]), independent_outlet_count: 1, article_count: 1, article_ids: J([a.article_id]), translation_ids: J([]), representative_article_id: a.article_id,\n    entities: J([]), provider_categories: J(a.provider_categories), phase: 'archive', editorial_score: 0, storyline_id: null, check_status: 'archive', check_label: null, split_from: null } });\n  out.push({ json: { _type: 'article_row', article_id: a.article_id, story_id, role: roundup ? 'roundup' : 'archive', feed: a.feed, publication: a.publication, permalink: a.permalink,\n    language: a.language, published_at: a.published_at, headline: a.headline, excerpt: a.excerpt || null, author: a.author, provider_categories: J(a.provider_categories),\n    content_hash: a.content_hash, translation_of: null, copy_of: null, text_len: a.text_len, text_content: a.text_content || null } });\n}\nout.push({ json: { _type: 'report', archive_articles: out.length / 2, exact_copies_skipped: copies, from: out.length ? out[0].json.first_seen : null, to: out.length ? out[out.length - 1].json.published_at : null } });\nreturn out;\n"
+      },
+      "id": "eaea73aa-442b-4925-a670-b9eecfb7778f"
+    },
+    {
+      "name": "Story rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Archive rows').all().filter(i => i.json._type === 'story_row').map(i => { const { _type, ...row } = i.json; return { json: row }; });"
+      },
+      "id": "8e3b2a26-237f-40d8-8f36-6ff56503caa0"
+    },
+    {
+      "name": "Insert lb_stories",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_stories"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "id": "fa5fbdde-525c-457a-bc0e-81937e3ed6a4"
+    },
+    {
+      "name": "Article rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        300
+      ],
+      "parameters": {
+        "jsCode": "return $('Archive rows').all().filter(i => i.json._type === 'article_row').map(i => { const { _type, ...row } = i.json; return { json: row }; });"
+      },
+      "id": "e5326a2e-1f14-4253-9010-a6225e4dc7d7"
+    },
+    {
+      "name": "Insert lb_articles",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "lb_articles"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "optimizeBulk": true
+        }
+      },
+      "id": "faea3195-c9ae-4601-ab88-2dd8336463f3"
+    },
+    {
+      "name": "Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        300
+      ],
+      "executeOnce": true,
+      "parameters": {
+        "jsCode": "const r = $('Archive rows').all().find(i => i.json._type === 'report').json;\nreturn [{ json: { ...r } }];"
+      },
+      "id": "8298507e-7168-4adb-b498-e1d421fbcf35"
+    },
+    {
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -60
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 200,
+        "content": "## Workflow E - add the archive (run once)\nAdds the Zacks articles from 28 Jul to 11 Nov (older than Workflow A's grouping window) to lb_articles, one story each (phase = archive).\nB finds them only when a listener's own words match (search step), and says when they were reported. No LLM, no cost.\nThen run Workflow D (pre-extraction) with ?from=2026-07-01 to extract their facts."
+      },
+      "id": "46738eb2-b79f-4096-8458-fba169f8a827"
+    }
+  ],
+  "connections": {
+    "Upload zacks.jsonl": {
+      "main": [
+        [
+          {
+            "node": "Parse JSONL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSONL": {
+      "main": [
+        [
+          {
+            "node": "Existing stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing stories": {
+      "main": [
+        [
+          {
+            "node": "Archive rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive rows": {
+      "main": [
+        [
+          {
+            "node": "Story rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story rows": {
+      "main": [
+        [
+          {
+            "node": "Insert lb_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert lb_stories": {
+      "main": [
+        [
+          {
+            "node": "Article rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article rows": {
+      "main": [
+        [
+          {
+            "node": "Insert lb_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert lb_articles": {
+      "main": [
+        [
+          {
+            "node": "Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}

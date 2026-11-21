@@ -1,0 +1,155 @@
+{
+ "_about": "Listener topic -> feeds / provider_categories. Labels counted in the snapshot (EN; DE/NL Invezz editions use translated labels, mapped via their EN counterpart).",
+ "topics": {
+  "fx_central_banks": {
+   "feeds": [
+    "actionforex"
+   ],
+   "provider_categories": [
+    "Fed",
+    "ECB",
+    "BoJ",
+    "BoC",
+    "RBA",
+    "RBNZ",
+    "JPY",
+    "USD",
+    "Forex",
+    "Yields"
+   ]
+  },
+  "macro": {
+   "feeds": [
+    "actionforex"
+   ],
+   "provider_categories": [
+    "Market Overview",
+    "Inflation",
+    "Economic Highlights",
+    "Economy"
+   ]
+  },
+  "stocks": {
+   "feeds": [
+    "invezz_en",
+    "zacks"
+   ],
+   "provider_categories": [
+    "Stock market",
+    "Indices",
+    "IPO",
+    "Mergers & Acquisitions",
+    "Business",
+    "Markets",
+    "Stocks",
+    "Market News",
+    "Stocks in the News"
+   ]
+  },
+  "crypto": {
+   "feeds": [
+    "invezz_en"
+   ],
+   "provider_categories": [
+    "Crypto",
+    "Bitcoin",
+    "XRP",
+    "Solana",
+    "Altcoins",
+    "DeFi",
+    "Ethereum",
+    "Cryptocurrency"
+   ]
+  },
+  "ai_tech": {
+   "feeds": [
+    "invezz_en",
+    "ibtimes_uk"
+   ],
+   "provider_categories": [
+    "Tech",
+    "Artificial intelligence",
+    "Artificial Intelligence",
+    "Technology",
+    "CyberSecurity",
+    "Social Media"
+   ]
+  },
+  "commodities": {
+   "feeds": [
+    "invezz_en",
+    "actionforex"
+   ],
+   "provider_categories": [
+    "Commodities",
+    "Precious metals",
+    "Energy",
+    "Gold",
+    "Oil"
+   ]
+  },
+  "world_politics": {
+   "feeds": [
+    "ibtimes_uk"
+   ],
+   "provider_categories": [
+    "World",
+    "Politics",
+    "National",
+    "Political"
+   ]
+  },
+  "personal_finance": {
+   "feeds": [
+    "ibtimes_uk"
+   ],
+   "provider_categories": [
+    "Personal Finance",
+    "Finance & Banking"
+   ]
+  },
+  "lifestyle": {
+   "feeds": [
+    "ibtimes_uk"
+   ],
+   "provider_categories": [
+    "Entertainment",
+    "Royals",
+    "Sports",
+    "Games",
+    "Crime",
+    "Trending"
+   ]
+  }
+ },
+ "region_tags_actionforex": [
+  "United States",
+  "Eurozone",
+  "European Union",
+  "Germany",
+  "United Kingdom",
+  "Japan",
+  "China",
+  "Australia",
+  "New Zealand",
+  "Canada",
+  "Russia"
+ ],
+ "exclude_from_narration_default": {
+  "why": "advice/rating-heavy sections - high risk of investment-advice wording",
+  "provider_categories": [
+   "Trading Ideas",
+   "Trading-ideen",
+   "Tradingidee\u00ebn",
+   "Zacks 1 Rank Additions",
+   "Bull of the Day",
+   "Bear of the Day",
+   "Investment Ideas",
+   "Analyst Blog Plus"
+  ]
+ },
+ "do_not_use": [
+  "categories POSITIVE/NEGATIVE (unreliable per organisers)",
+  "provider_tickers (always empty)"
+ ]
+}

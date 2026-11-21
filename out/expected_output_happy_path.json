@@ -1,0 +1,342 @@
+{
+  "run_id": "m2-local",
+  "briefing": {
+    "profile_id": "markets_3min",
+    "briefing_date": "2026-11-19",
+    "disclosure": "Narrated by an AI-generated voice. Script generated automatically from the linked articles.",
+    "est_duration_seconds": 54,
+    "audio": {
+      "synthesized": false
+    },
+    "transcript": [
+      {
+        "index": 0,
+        "kind": "intro",
+        "text": "This is your markets briefing for Thursday, November 19. It is read by an AI-generated voice.",
+        "claim_ids": [],
+        "sources": []
+      },
+      {
+        "index": 1,
+        "kind": "transition",
+        "text": "Our top story comes from Fictional Markets Wire.",
+        "claim_ids": [],
+        "sources": []
+      },
+      {
+        "index": 2,
+        "kind": "claim",
+        "text": "Norland's producer prices rose 0.4% in October from the previous month, according to the Norland Statistics Office.",
+        "claim_ids": [
+          "clm_1053c0f8f8fe0b"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_1053c0f8f8fe0b",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 3,
+        "kind": "claim",
+        "text": "Economists had expected a smaller increase of 0.2% from the previous month.",
+        "claim_ids": [
+          "clm_0007483ced7ba9"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_0007483ced7ba9",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 4,
+        "kind": "claim",
+        "text": "Compared with October last year, Norland producer prices were up 2.6%.",
+        "claim_ids": [
+          "clm_1bf56bbae531e8"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_1bf56bbae531e8",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "kind": "claim",
+        "text": "Excluding food and energy, Norland producer prices rose 0.1% month-on-month.",
+        "claim_ids": [
+          "clm_0badbe8ad51585"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_0badbe8ad51585",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 6,
+        "kind": "claim",
+        "text": "By 15:00 local time, the Norland krone was up 0.5% against the euro.",
+        "claim_ids": [
+          "clm_0ee85bbd4d6b4e"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_0ee85bbd4d6b4e",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 7,
+        "kind": "claim",
+        "text": "Analysts at Fictional Bank said the stronger-than-expected reading made a rate cut at the central bank's December meeting less likely.",
+        "claim_ids": [
+          "clm_0eeeadf3f02858"
+        ],
+        "sources": [
+          {
+            "claim_id": "clm_0eeeadf3f02858",
+            "publication": "Fictional Markets Wire",
+            "headline": "Norland producer prices rise faster than expected in October",
+            "url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october"
+          }
+        ]
+      },
+      {
+        "index": 8,
+        "kind": "outro",
+        "text": "That is the briefing. Every figure you heard links to its source article in the transcript. This is news, not investment advice.",
+        "claim_ids": [],
+        "sources": []
+      }
+    ]
+  },
+  "claims_public": [
+    {
+      "claim_id": "clm_1053c0f8f8fe0b",
+      "statement": "Norland's producer prices rose 0.4% in October from the previous month, according to the Norland Statistics Office.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    },
+    {
+      "claim_id": "clm_0007483ced7ba9",
+      "statement": "Economists had expected a smaller increase of 0.2% from the previous month.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    },
+    {
+      "claim_id": "clm_1bf56bbae531e8",
+      "statement": "Compared with October last year, Norland producer prices were up 2.6%.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    },
+    {
+      "claim_id": "clm_0badbe8ad51585",
+      "statement": "Excluding food and energy, Norland producer prices rose 0.1% month-on-month.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    },
+    {
+      "claim_id": "clm_0ee85bbd4d6b4e",
+      "statement": "By 15:00 local time, the Norland krone was up 0.5% against the euro.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    },
+    {
+      "claim_id": "clm_0eeeadf3f02858",
+      "statement": "Analysts at Fictional Bank said the stronger-than-expected reading made a rate cut at the central bank's December meeting less likely.",
+      "status": "verified",
+      "source_url": "https://example.com/fictional-markets-wire/2026/11/19/norland-producer-prices-october",
+      "publication": "Fictional Markets Wire"
+    }
+  ],
+  "debug_internal": {
+    "story": {
+      "story_id": "sty_1db34830b5567a",
+      "title": "Norland producer prices rise faster than expected in October",
+      "event_date": "October 2026",
+      "event_type": "macro_data_release",
+      "entities": [
+        "Norland",
+        "Norland Statistics Office",
+        "Norland krone"
+      ],
+      "topics": [
+        "Economy",
+        "FX"
+      ],
+      "article_ids": [
+        "nx:FIXTURE-0001"
+      ],
+      "editorial_score": null,
+      "claim_ids": [
+        "clm_1053c0f8f8fe0b",
+        "clm_0007483ced7ba9",
+        "clm_1bf56bbae531e8",
+        "clm_0badbe8ad51585",
+        "clm_0ee85bbd4d6b4e",
+        "clm_0eeeadf3f02858"
+      ]
+    },
+    "claim_checks": [
+      {
+        "claim_id": "clm_1053c0f8f8fe0b",
+        "local_id": "c1",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "Producer prices in Norland rose 0.4% in October from the previous month, the Norland Statistics Office said on Thursday",
+          "evidence_location": {
+            "paragraph": 1,
+            "char_start_normalized": 0,
+            "char_end_normalized": 119
+          }
+        }
+      },
+      {
+        "claim_id": "clm_0007483ced7ba9",
+        "local_id": "c2",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "rose 0.4% in October from the previous month, the Norland Statistics Office said on Thursday, faster than the 0.2% increase economists polled by Fictional Markets Wire had expected",
+          "evidence_location": {
+            "paragraph": 1,
+            "char_start_normalized": 27,
+            "char_end_normalized": 207
+          }
+        }
+      },
+      {
+        "claim_id": "clm_1bf56bbae531e8",
+        "local_id": "c3",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "Compared with October last year, producer prices were up 2.6%",
+          "evidence_location": {
+            "paragraph": 2,
+            "char_start_normalized": 209,
+            "char_end_normalized": 270
+          }
+        }
+      },
+      {
+        "claim_id": "clm_0badbe8ad51585",
+        "local_id": "c4",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "Excluding food and energy, prices increased 0.1% month-on-month.",
+          "evidence_location": {
+            "paragraph": 2,
+            "char_start_normalized": 311,
+            "char_end_normalized": 375
+          }
+        }
+      },
+      {
+        "claim_id": "clm_0ee85bbd4d6b4e",
+        "local_id": "c5",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "By 15:00 local time the krone was up 0.5% against the euro, trading at 11.42 krone per euro.",
+          "evidence_location": {
+            "paragraph": 3,
+            "char_start_normalized": 426,
+            "char_end_normalized": 518
+          }
+        }
+      },
+      {
+        "claim_id": "clm_0eeeadf3f02858",
+        "local_id": "c6",
+        "status": "verified",
+        "errors": [],
+        "warnings": [],
+        "evidence": {
+          "evidence_quote": "Analysts at Fictional Bank said the stronger-than-expected reading made a rate cut at the central bank's December meeting less likely.",
+          "evidence_location": {
+            "paragraph": 4,
+            "char_start_normalized": 519,
+            "char_end_normalized": 653
+          }
+        }
+      }
+    ],
+    "gate": {
+      "status": "passed",
+      "checked_segments": 9,
+      "dropped_for_time": []
+    },
+    "tts_text": "This is your markets briefing for Thursday, November 19. It is read by an AI-generated voice.\n\nOur top story comes from Fictional Markets Wire.\n\nNorland's producer prices rose 0.4 percent in October from the previous month, according to the Norland Statistics Office.\n\nEconomists had expected a smaller increase of 0.2 percent from the previous month.\n\nCompared with October last year, Norland producer prices were up 2.6 percent.\n\nExcluding food and energy, Norland producer prices rose 0.1 percent month-on-month.\n\nBy 15:00 local time, the Norland krone was up 0.5 percent against the euro.\n\nAnalysts at Fictional Bank said the stronger-than-expected reading made a rate cut at the central bank's December meeting less likely.\n\nThat is the briefing. Every figure you heard links to its source article in the transcript. This is news, not investment advice."
+  },
+  "usage": {
+    "rows": [
+      {
+        "run_id": "m2-local",
+        "stage": "extract_claims",
+        "article_id": "nx:FIXTURE-0001",
+        "cache_key": "sha256:d04a565c3848807aff6c0ff9c7214541e783ab131ea06deacdef53b095b5e043|extract-v1|gpt-5-mini",
+        "cache_hit": false,
+        "mocked": true,
+        "model": "gpt-5-mini (MOCK)",
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "output_tokens": 0,
+        "reasoning_tokens": 0,
+        "est_cost_usd": 0,
+        "price_known": true,
+        "escalated": false,
+        "retries": null,
+        "logged_at": "2026-11-20T16:34:06.001Z"
+      },
+      {
+        "run_id": "m2-local",
+        "stage": "tts",
+        "model": "eleven_flash_v2_5",
+        "billable_characters": 0,
+        "est_credits": 0,
+        "est_cost_usd": null,
+        "cache_hit": false,
+        "logged_at": "2026-11-20T16:34:06.004Z"
+      }
+    ],
+    "totals": {
+      "llm_input_tokens": 0,
+      "llm_output_tokens": 0,
+      "llm_est_cost_usd": 0,
+      "tts_billable_characters": 0,
+      "tts_est_credits": 0,
+      "elapsed_ms": 7
+    }
+  }
+}
