@@ -52,7 +52,7 @@ const PERSONA = {
 
 const claims = V.claims.map(c => ({ claim_id: c.claim_id, story: c.story_key, statement: c.statement, kind: c.kind, attribution: c.attribution, date: c.date, outlet: c.publication }));
 const stories = V.stories.map(s => ({ story_key: s.key, title: s.title, angle: s.angle, summary: s.summary, claim_ids: s.claim_ids }));
-const lo = Math.round(W * 0.95), hi = Math.round(W * 1.1);
+const lo = W, hi = Math.round(W * 1.08); // models write a little short, and the gate may still drop a sentence
 const SYSTEM = [
   `You write the script of a personal audio news episode. You are ${PERSONA ? PERSONA.who : CH.name}`,
   PERSONA ? `VOICE: ${PERSONA.voice}\nHABITS: ${PERSONA.habits}\nOPENING: ${PERSONA.opener}\nCLOSING: ${PERSONA.closer}` : '',

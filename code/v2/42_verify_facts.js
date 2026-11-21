@@ -66,5 +66,5 @@ const stories = meta.stories.map(s => ({ ...s, claim_ids: s.fact_ids.filter(id =
 return [{ json: {
   stories, claims, rejected, usage: meta.usage, notes: meta.notes, answerable: meta.answerable,
   check: { facts_proposed: meta.facts.length, facts_verified: claims.length, pages_read: Object.values(page).filter(p => p.ok).length, pages_total: Object.keys(page).length, searches: meta.searches, ms_research: meta.ms_research },
-  words: meta.words, factsTarget: meta.factsTarget,
+  words: meta.words, wps: meta.wps, factsTarget: meta.factsTarget,
 } }];

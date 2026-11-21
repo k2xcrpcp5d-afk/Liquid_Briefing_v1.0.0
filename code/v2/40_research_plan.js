@@ -9,7 +9,10 @@ const P = F.profile;
 const CFG = { MODEL: 'gpt-6.1-terra', EFFORT: 'low', LOCAL: false /*__LOCAL__*/ };
 const LANG = { en: 'English', de: 'German', nl: 'Dutch' }[P.language] || 'English';
 const seconds = P.duration_seconds;
-const words = Math.round(seconds * P.words_per_second);
+// measured speaking rate (live runs 21 Nov 2026): words per second at voice speed 1.0, times the host's voice speed
+const speed = (P.character && P.character.voice && P.character.voice.voice_settings && P.character.voice.voice_settings.speed) || 1;
+const wps = Number((({ en: 2.8, de: 1.9, nl: 2.55 }[P.language] || 2.6) * speed).toFixed(2));
+const words = Math.round(seconds * wps);
 const factsTarget = Math.max(8, Math.min(48, Math.round(words / 26)));
 const today = new Date().toISOString().slice(0, 10);
 // Trusted outlets whose article pages n8n can fetch for the quote check (tested 21 Nov 2026), plus official sources.
@@ -45,7 +48,7 @@ const SYSTEM = (a) => [
   'Search the web. Only trustworthy, established outlets and official sources are available to you.',
   'Prefer news from the last 72 hours. Older material only as background, and give its date.',
   'For EVERY fact give one or two sources. For each source copy an EXACT quote from the article text: one or two complete sentences, verbatim, in the article language. No paraphrase, no ellipsis, no headlines. The quote must contain every number in the statement.',
-  'Statements: one checkable fact each, written in English, with who / what / when. Opinions, motives and explanations only as attributed views (attribution = who says it). No investment advice, no tips to buy or sell.',
+  'Statements: one checkable fact each, written in English, with who / what / when, plain text without links or citation marks. Opinions, motives and explanations only as attributed views (attribution = who says it). No investment advice, no tips to buy or sell.',
   'Collect about ' + a.facts + ' facts, grouped into stories. If the request cannot be answered from reliable sources, set answerable=false, say why in unanswered_note, and still collect the closest relevant facts.',
 ].join('\n');
 const USER = 'Listener request: ' + (question || 'What is the most important news for me today?') + (interests ? '\nListener interests: ' + interests : '') + (COUNTRY ? '\nListener country: ' + COUNTRY : '');
@@ -59,7 +62,7 @@ const schema = { type: 'object', additionalProperties: false, required: ['answer
       sources: { type: 'array', items: { type: 'object', additionalProperties: false, required: ['url', 'publisher', 'quote'], properties: { url: S, publisher: S, quote: S } } } } } } } } } } };
 
 return angles.map(a => ({ json: {
-  angle: a.key, facts_wanted: a.facts, words, factsTarget, domains: DOMAINS, local: CFG.LOCAL, t0: Date.now(),
+  angle: a.key, facts_wanted: a.facts, words, wps, factsTarget, domains: DOMAINS, local: CFG.LOCAL, t0: Date.now(),
   body: { model: CFG.MODEL, instructions: SYSTEM(a), input: USER,
     tools: [{ type: 'web_search', filters: { allowed_domains: DOMAINS } }], include: ['web_search_call.action.sources'],
     text: { format: { type: 'json_schema', name: 'research', strict: true, schema } }, reasoning: { effort: CFG.EFFORT }, max_output_tokens: 20000 },

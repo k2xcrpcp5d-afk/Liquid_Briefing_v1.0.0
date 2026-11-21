@@ -1,6 +1,6 @@
 // ============================================================================
 // WORKFLOW B v2 — NODE: "Check length"   (Code node, Run Once for All Items)
-// Models write short. If the draft is under 90 % of the chosen length, one extra call
+// Models write short. If the draft is under 95 % of the chosen length, one extra call
 // adds segments (more context and side facts from the verified claims) in the right places.
 // ============================================================================
 const R = $input.first().json;
@@ -14,7 +14,7 @@ const words = draft.segments.reduce((a, s) => a + count(s.text), 0);
 const used = new Set(draft.segments.flatMap(s => s.claim_ids));
 const unused = V.claims.filter(c => !used.has(c.claim_id)).map(c => ({ claim_id: c.claim_id, story: c.story_key, statement: c.statement, attribution: c.attribution, date: c.date }));
 const missing = WR.lo - words;
-const needs_expand = !error && words < WR.words_target * 0.9 && (unused.length > 0 || missing > 40);
+const needs_expand = !error && words < WR.words_target * 0.95 && (unused.length > 0 || missing > 30);
 let openai_body = null;
 if (needs_expand) {
   const SYSTEM = WR.openai_body.messages[0].content + `\nTASK NOW: the draft below is ${words} words, but the episode needs ${WR.lo}-${WR.hi}. Add about ${missing + 20} spoken words as NEW segments. Put each one right after the segment it continues (insert_after = that segment's index). Use the unused facts first (cite them), then go deeper into the stories with the facts already cited. Same voice, same rules. Do not repeat what is already said.`;

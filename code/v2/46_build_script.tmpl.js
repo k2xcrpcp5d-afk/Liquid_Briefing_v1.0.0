@@ -44,7 +44,7 @@ for (const s of M.draft.segments) {
 }
 const segments = kept.map((s, i) => ({ ...s, index: i, spoken_text: toSpoken(s.display_text, LG) }));
 const totalWords = segments.reduce((a, s) => a + count(s.display_text), 0);
-const est = Math.round(totalWords / P.words_per_second);
+const est = Math.round(totalWords / (V.wps || P.words_per_second));
 const SHORT = {
   en: (a, b) => `About ${a} of ${b} minutes: the trusted sources did not have more verified material on this.`,
   de: (a, b) => `Etwa ${a} von ${b} Minuten: Die vertrauenswürdigen Quellen hatten dazu nicht mehr geprüftes Material.`,

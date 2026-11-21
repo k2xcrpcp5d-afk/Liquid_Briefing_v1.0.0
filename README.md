@@ -37,7 +37,7 @@ Newstex feed (JSONL)
 - Transcript follows the speech using ElevenLabs timestamps. Tap a line to jump; every fact has its source link.
 - Library: every briefing is saved to the listener's account (Supabase), newest first, with audio.
 
-## v2: live web research (branch `v2-web-research`, in testing)
+## v2: live web research
 
 The Newstex dataset is deleted after the hackathon. v2 researches every episode live:
 
@@ -54,7 +54,9 @@ profile + question + length + host
 
 - Code: `code/v2/40–47`, builder `build_workflow_b2.js`, workflows `out/liquid-briefing-B2-web*.workflow.json`.
 - Outlets that block automated reading (Reuters, AP, FT, WSJ, Bloomberg, NYT, Axios) are not searched, because their facts could never pass the check.
-- Cost per episode (estimate): about $0.30 for 3 minutes and $0.45 for 5 minutes (web search $10 per 1,000 calls plus the read text as input tokens).
+- Live runs (21 Nov 2026): 3 min EN (Pip) 85 s to ready, 19 of 20 facts verified; 5 min DE (Tide) 85 s, 22 of 25; 10 min NL (Rain) 110 s, 17 of 35 (blocked or unreadable pages).
+- Cost per episode, measured: research + writing about $0.20–0.25, voice about $0.04 per 1,000 characters; about $0.30 for 3 minutes and $0.45 for 5 minutes.
+- Speaking rate is calibrated per language and voice speed (EN 2.8, DE 1.9, NL 2.55 words per second at speed 1.0).
 
 ## Repository
 

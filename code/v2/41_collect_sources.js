@@ -8,6 +8,8 @@ const answers = $input.all().map(i => { const j = i.json; if (j && typeof j.data
 const host = u => { const m = String(u || '').match(/^https?:\/\/([^\/?#:]+)/i); return m ? m[1].toLowerCase().replace(/^(www|amp|m)\./, '') : ''; };
 const allowed = (h, local) => (local && /^(127\.0\.0\.1|localhost)$/.test(h)) || (!!h && plans[0].domains.some(d => h === d || h.endsWith('.' + d)));
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+// the model sometimes appends markdown citations ("([bbc.com](https://...))") to statements: they must not be checked as content
+const unlink = s => String(s || '').replace(/\(\s*\[[^\]]*\]\([^)]*\)\s*\)/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/https?:\/\/\S+/g, '').replace(/\s+([.,;:])/g, '$1').replace(/\s+/g, ' ').trim();
 const stories = [], facts = [], usage = [], notes = [];
 let answerable = true, searches = 0, n = 0;
 const seenFact = new Set();
@@ -23,12 +25,13 @@ answers.forEach((R, i) => {
   (data.stories || []).forEach((s, si) => {
     const key = angle + '_' + si;
     const ids = [];
-    for (const f of s.facts || []) {
+    for (const f0 of s.facts || []) {
+      const f = { ...f0, statement: unlink(f0.statement) };
       const k = norm(f.statement).slice(0, 90);
       if (!k || seenFact.has(k)) continue;
       seenFact.add(k);
       const id = 'f' + (++n);
-      const sources = (f.sources || []).map(src => ({ url: String(src.url || '').trim(), publisher: src.publisher, quote: src.quote, domain: host(src.url) }))
+      const sources = (f.sources || []).map(src => ({ url: String(src.url || '').trim(), publisher: src.publisher, quote: unlink(src.quote), domain: host(src.url) }))
         .map(src => ({ ...src, allowed: allowed(src.domain, plans[0].local) })).slice(0, 3);
       facts.push({ id, story_key: key, angle, statement: f.statement, kind: f.kind, attribution: f.attribution, date: f.date, sources });
       ids.push(id);
@@ -37,6 +40,6 @@ answers.forEach((R, i) => {
   });
 });
 const urls = [...new Set(facts.flatMap(f => f.sources.filter(s => s.allowed).map(s => s.url)))].slice(0, 60);
-const meta = { stories, facts, usage, notes, answerable, searches, ms_research: Date.now() - plans[0].t0, words: plans[0].words, factsTarget: plans[0].factsTarget };
+const meta = { stories, facts, usage, notes, answerable, searches, ms_research: Date.now() - plans[0].t0, words: plans[0].words, wps: plans[0].wps, factsTarget: plans[0].factsTarget };
 if (!urls.length) return [{ json: { url: 'about:blank', meta } }];
 return urls.map((url, i) => ({ json: i === 0 ? { url, meta } : { url } }));
