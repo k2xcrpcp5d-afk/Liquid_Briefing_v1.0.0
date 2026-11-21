@@ -30,7 +30,7 @@ const STR = {
     foot: 'AI-generated voice · news, not investment advice · sources link to the original publishers',
     profT: 'Your profile', retake: 'Retake the quiz', change: 'Change', name: 'Name', usual: 'Usual length', following: 'Following', saved: 'Saved', none: 'None', save: 'Save', chooseHost: 'Choose your host',
     prevHost: 'Previous host', nextHost: 'Next host', chooseHostAria: 'Choose your host', hello: "Hi, I'm {h}!",
-    kinds: { hook: 'Opening', teaser: 'Coming up', story: 'Story', context: 'Context', question: 'Question', explainer: 'Explainer', for_you: 'For you', background: 'Background · general knowledge, not from the articles', quick_hit: 'Quick hit', recap: 'Takeaways', closer: 'What to watch', claim: 'Fact' },
+    kinds: { greeting: 'Hello', answer: 'Your answer', side: 'Did you know', transition: '', reaction: '', signoff: 'Bye', hook: 'Opening', teaser: 'Coming up', story: 'Story', context: 'Context', question: 'Question', explainer: 'Explainer', for_you: 'For you', background: 'Background', quick_hit: 'Quick hit', recap: 'Takeaways', closer: 'What to watch', claim: 'Fact' },
     lens: { short: ['Short', '3 min'], medium: ['Medium', '5 min'], long: ['Long', '10 min'] },
     topics: { macro: 'Economy', fx_central_banks: 'Central banks & currencies', stocks: 'Companies & stocks', ai_tech: 'Tech & AI', commodities: 'Energy & commodities', personal_finance: 'Personal finance', crypto: 'Crypto', world_politics: 'World & politics' },
     quiz: [
@@ -79,7 +79,7 @@ const STR = {
     foot: 'KI-generierte Stimme · News, keine Anlageberatung · Quellen verlinken zu den Original-Verlagen',
     profT: 'Dein Profil', retake: 'Quiz nochmal machen', change: 'Ändern', name: 'Name', usual: 'Übliche Länge', following: 'Folgst du', saved: 'Gespeichert', none: 'Keine', save: 'Speichern', chooseHost: 'Wähle deinen Host',
     prevHost: 'Vorheriger Host', nextHost: 'Nächster Host', chooseHostAria: 'Wähle deinen Host', hello: 'Hi, ich bin {h}!',
-    kinds: { hook: 'Einstieg', teaser: 'Gleich', story: 'Story', context: 'Kontext', question: 'Frage', explainer: 'Erklärt', for_you: 'Für dich', background: 'Hintergrund · Allgemeinwissen, nicht aus den Artikeln', quick_hit: 'Kurz', recap: 'Das Wichtigste', closer: 'Ausblick', claim: 'Fakt' },
+    kinds: { greeting: 'Hallo', answer: 'Deine Antwort', side: 'Wusstest du', transition: '', reaction: '', signoff: 'Tschüss', hook: 'Einstieg', teaser: 'Gleich', story: 'Story', context: 'Kontext', question: 'Frage', explainer: 'Erklärt', for_you: 'Für dich', background: 'Hintergrund', quick_hit: 'Kurz', recap: 'Das Wichtigste', closer: 'Ausblick', claim: 'Fakt' },
     lens: { short: ['Kurz', '3 Min.'], medium: ['Mittel', '5 Min.'], long: ['Lang', '10 Min.'] },
     topics: { macro: 'Wirtschaft', fx_central_banks: 'Notenbanken & Währungen', stocks: 'Unternehmen & Aktien', ai_tech: 'Tech & KI', commodities: 'Energie & Rohstoffe', personal_finance: 'Persönliche Finanzen', crypto: 'Krypto', world_politics: 'Welt & Politik' },
     quiz: [
@@ -128,7 +128,7 @@ const STR = {
     foot: 'AI-gegenereerde stem · nieuws, geen beleggingsadvies · bronnen linken naar de oorspronkelijke uitgevers',
     profT: 'Je profiel', retake: 'Quiz opnieuw doen', change: 'Wijzigen', name: 'Naam', usual: 'Gebruikelijke lengte', following: 'Volg je', saved: 'Opgeslagen', none: 'Geen', save: 'Opslaan', chooseHost: 'Kies je host',
     prevHost: 'Vorige host', nextHost: 'Volgende host', chooseHostAria: 'Kies je host', hello: 'Hoi, ik ben {h}!',
-    kinds: { hook: 'Opening', teaser: 'Straks', story: 'Verhaal', context: 'Context', question: 'Vraag', explainer: 'Uitleg', for_you: 'Voor jou', background: 'Achtergrond · algemene kennis, niet uit de artikelen', quick_hit: 'Kort', recap: 'In het kort', closer: 'Vooruitblik', claim: 'Feit' },
+    kinds: { greeting: 'Hallo', answer: 'Jouw antwoord', side: 'Wist je dat', transition: '', reaction: '', signoff: 'Doei', hook: 'Opening', teaser: 'Straks', story: 'Verhaal', context: 'Context', question: 'Vraag', explainer: 'Uitleg', for_you: 'Voor jou', background: 'Achtergrond', quick_hit: 'Kort', recap: 'In het kort', closer: 'Vooruitblik', claim: 'Feit' },
     lens: { short: ['Kort', '3 min'], medium: ['Middel', '5 min'], long: ['Lang', '10 min'] },
     topics: { macro: 'Economie', fx_central_banks: 'Centrale banken & valuta', stocks: 'Bedrijven & aandelen', ai_tech: 'Tech & AI', commodities: 'Energie & grondstoffen', personal_finance: 'Persoonlijke financiën', crypto: 'Crypto', world_politics: 'Wereld & politiek' },
     quiz: [
